@@ -1,23 +1,29 @@
 {
-  "name": "dinerito-flow",
+  "name": "@dinerito-flow/app",
   "main": "expo-router/entry",
+  "author": "Rafael De Leon",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaeldeleonp/dinerito-flow.git"
+  },
   "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
+    "start": "npx expo start",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios",
+    "web": "npx expo start --web",
+    "lint": "npx expo lint",
+    "start-lan": "npx expo start --lan",
+    "start-tunnel": "npx expo start --tunnel",
+    "start-clear": "npx expo start --clear",
     "test": "jest --watchAll",
-    "lint": "expo lint",
-    "start-lan": "expo start --lan",
-    "start-tunnel": "expo start --tunnel",
-    "start-clear": "expo start --clear"
+    "clean": "rm -rf node_modules"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@babel/runtime": "^7.26.10",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",

@@ -1,0 +1,32 @@
+{
+  "name": "dinerito-flow",
+  "private": true,
+  "description": "DineritoFlow helps you stick to your monthly budget and monitor your spending habits.",
+  "author": "Rafael De Leon",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaeldeleonp/dinerito-flow.git"
+  },
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=10.6.4"
+  },
+  "packageManager": "pnpm@10.6.4",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "eslint": "9.15.0",
+    "prettier": "3.3.3",
+    "turbo": "latest",
+    "typescript": "5.6.3"
+  }
+}

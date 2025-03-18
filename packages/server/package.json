@@ -1,0 +1,61 @@
+{
+  "name": "@dinerito-flow/server",
+  "version": "0.0.1",
+  "description": "Book library API",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafaeldeleonp/dinerito-flow.git"
+  },
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=10.6.4"
+  },
+  "packageManager": "pnpm@10.6.4",
+  "keywords": [
+    "api",
+    "express",
+    "node",
+    "mysql"
+  ],
+  "author": "Rafael De Leon",
+  "license": "ISC",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint . -c eslint.config.mjs",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf dist && rm -rf coverage && rm -rf node_modules"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "2.8.5",
+    "express": "5.0.1",
+    "jose": "^5.9.6",
+    "mysql2": "^3.11.5",
+    "pino": "9.5.0",
+    "pino-pretty": "13.0.0",
+    "@dinerito-flow/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "4.7.1"
+  }
+}

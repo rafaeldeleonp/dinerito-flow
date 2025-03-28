@@ -13,13 +13,13 @@
       "dependsOn": ["format", "^lint"],
       "outputs": []
     },
-    "dev": {
-      "dependsOn": ["lint"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    "start:dev": {
+      "cache": false,
+      "persistent": true
     },
     "build": {
       "dependsOn": ["lint", "^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".expo"]
     },
     "clean": {
       "dependsOn": ["^clean"],

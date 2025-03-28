@@ -1,20 +1,21 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // Project Structure
-    "baseUrl": ".",
-    "outDir": "dist",
-
-    // Module Resolution
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2022",
-    "lib": ["ES2022"],
-
-    // Additional Settings
-    "sourceMap": true,
+    "module": "commonjs",
     "declaration": true,
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "coverage"]
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true
+  }
 }

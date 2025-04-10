@@ -1,45 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import { JwtPayload, LoginResponse, User } from '@dinerito-flow/shared';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+  async validateUser(email: string, pass: string): Promise<User | null> {
+    const user = await this.usersService.findOne(email);
 
     if (!user) {
-      console.log('User not found');
+      this.logger.warn('User not found');
       return null;
     }
 
     if (!user.password) {
-      console.log('User does not have a password set');
+      this.logger.warn('User does not have a password set');
       return null;
     }
 
-    console.log('User found:', user);
-
-    // const isPasswordValid = await bcrypt.compare(pass, user.password);
-    const isPasswordValid = pass === user.password; // For testing purposes, use plain text comparison
+    const isPasswordValid = await this.usersService.verifyPassword(pass, user.password);
 
     if (isPasswordValid) {
-      const { password, ...result } = user;
-      return result;
+      return user;
     }
 
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  async login(user: User): Promise<LoginResponse> {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    const updatedUser = await this.usersService.update(user.id, {
+      lastLogin: new Date(),
+    });
+
+    if (!updatedUser) throw new Error('Failed to update user last login');
+
     return {
       access_token: this.jwtService.sign(payload),
+      user: updatedUser,
     };
   }
 }

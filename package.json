@@ -21,7 +21,11 @@
     "start:dev": "turbo run start:dev",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "migrate:create": "cd packages/server && npm prisma migrate dev --name",
+    "migrate:deploy": "cd packages/server && pnpm prisma migrate deploy",
+    "migrate:status": "cd packages/server && pnpm prisma migrate status",
+    "migrate:reset": "cd packages/server && pnpm prisma migrate reset"
   },
   "devDependencies": {
     "eslint": "9.15.0",

@@ -1,9 +1,9 @@
-const API_URL = 'http://192.168.86.97:3000';
+const BASE_API_URL = 'http://192.168.86.97:3000';
 
 export const api = {
   async get<T>(endpoint: string): Promise<T> {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`);
+      const response = await fetch(`${BASE_API_URL}${endpoint}`);
 
       if (!response.ok) {
         throw new Error(`API Error: ${response.status}`);
@@ -18,7 +18,7 @@ export const api = {
 
   async post<T>(endpoint: string, data: any): Promise<T> {
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
+      const response = await fetch(`${BASE_API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

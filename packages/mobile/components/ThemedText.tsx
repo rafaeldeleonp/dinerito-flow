@@ -1,31 +1,38 @@
+import { useTheme } from '@/contexts/theme';
 import { Text, type TextProps, StyleSheet } from 'react-native';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+export enum ThemedTextType {
+  DEFAULT = 'default',
+  DEFAULT_SEMI_BOLD = 'defaultSemiBold',
+  TITLE = 'title',
+  SUBTITLE = 'subtitle',
+  LINK = 'link',
+}
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?:
+    | ThemedTextType.DEFAULT
+    | ThemedTextType.DEFAULT_SEMI_BOLD
+    | ThemedTextType.TITLE
+    | ThemedTextType.SUBTITLE
+    | ThemedTextType.LINK;
 };
 
-export function ThemedText({
-  style,
-  lightColor,
-  darkColor,
-  type = 'default',
-  ...rest
-}: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+export function ThemedText({ style, lightColor, darkColor, type = ThemedTextType.DEFAULT, ...rest }: ThemedTextProps) {
+  const theme = useTheme();
+  const color = lightColor || darkColor || theme.text;
 
   return (
     <Text
       style={[
         { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        type === ThemedTextType.DEFAULT ? styles.default : undefined,
+        type === ThemedTextType.DEFAULT_SEMI_BOLD ? styles.defaultSemiBold : undefined,
+        type === ThemedTextType.TITLE ? styles.title : undefined,
+        type === ThemedTextType.SUBTITLE ? styles.subtitle : undefined,
+        type === ThemedTextType.LINK ? styles.link : undefined,
         style,
       ]}
       {...rest}
@@ -34,27 +41,27 @@ export function ThemedText({
 }
 
 const styles = StyleSheet.create({
-  default: {
+  [ThemedTextType.DEFAULT]: {
     fontSize: 16,
     lineHeight: 24,
   },
-  defaultSemiBold: {
+  [ThemedTextType.DEFAULT_SEMI_BOLD]: {
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '600',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
+  [ThemedTextType.TITLE]: {
+    fontSize: 48,
+    fontWeight: 900,
+    lineHeight: 52,
   },
-  subtitle: {
+  [ThemedTextType.SUBTITLE]: {
     fontSize: 20,
     fontWeight: 'bold',
   },
-  link: {
+  [ThemedTextType.LINK]: {
     lineHeight: 30,
     fontSize: 16,
-    color: '#0a7ea4',
+    color: '#547c4c',
   },
 });

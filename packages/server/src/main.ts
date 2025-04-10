@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { ConsoleLogger } from '@nestjs/common';
+import { TransformInterceptor } from './transform.interceptor';
+import { HttpExceptionFilter } from './errors.interceptor';
+import { RequestLoggerInterceptor } from './request-logger.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -9,9 +12,19 @@ async function bootstrap() {
     }),
   });
 
-  // Enable CORS
   app.enableCors();
+  app.useGlobalInterceptors(new RequestLoggerInterceptor());
+  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(parseInt(process.env.PORT || '3000', 10), '0.0.0.0');
 }
+
 bootstrap();

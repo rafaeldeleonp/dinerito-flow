@@ -2,10 +2,9 @@ import React, { forwardRef } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { StyleSheet, TextInput, TextInputProps } from 'react-native';
 
-import { useTheme } from '@/contexts/theme';
-
-
 import { ThemedText, ThemedTextType } from './ThemedText';
+
+import { useTheme } from '@/contexts/theme';
 
 interface ThemedInputProps<T extends FieldValues = FieldValues> extends TextInputProps {
   name: Path<T>;

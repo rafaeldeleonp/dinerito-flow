@@ -1,9 +1,9 @@
+import SignupWrapper from './wrapper';
+
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { FIRST_NAME, LAST_NAME } from '@/constants/signup';
 import { useSignupForm } from '@/contexts/signup-form';
-
-import SignupWrapper from './wrapper';
 
 export default function SignupVerifyEmail() {
   const {

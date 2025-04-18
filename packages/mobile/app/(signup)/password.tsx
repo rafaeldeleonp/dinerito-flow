@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import SignupWrapper from './wrapper';
+
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
@@ -7,9 +9,6 @@ import { FIRST_NAME, LAST_NAME } from '@/constants/signup';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
 import fetchService from '@/services/fetchService';
 import { FetchingState } from '@/types/signup';
-
-import SignupWrapper from './wrapper';
-
 
 export default function SignupPassword() {
   const {

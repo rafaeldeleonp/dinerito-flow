@@ -1,9 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 
+import { ThemedText, ThemedTextType } from './ThemedText';
+
 import { PRIMARY_COLOR } from '@/constants/Colors';
 import { useTheme } from '@/contexts/theme';
-
-import { ThemedText, ThemedTextType } from './ThemedText';
 
 type AppNameProps = {
   containerStyle?: object;

@@ -2,6 +2,8 @@ import { ApiResponse, VerificationCode, VerifyCode } from '@dinerito-flow/shared
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import SignupWrapper from './wrapper';
+
 import Button, { ButtonVariant } from '@/components/Button';
 import ThemedOTPInput from '@/components/ThemedOTPInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
@@ -10,10 +12,6 @@ import { CODE, INITIAL_FETCHING_STATE } from '@/constants/signup';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
 import fetchService from '@/services/fetchService';
 import { FetchingState } from '@/types/signup';
-
-
-import SignupWrapper from './wrapper';
-
 
 export default function SignupVerifyEmail() {
   const {

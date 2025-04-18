@@ -1,15 +1,14 @@
 import { VerificationCode } from '@dinerito-flow/shared';
 import { useState } from 'react';
 
+import SignupWrapper from './wrapper';
+
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { EMAIL } from '@/constants/common';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
 import FetchService from '@/services/fetchService';
 import { FetchingState } from '@/types/signup';
-
-import SignupWrapper from './wrapper';
-
 
 export default function SignupEnterEmail() {
   const {

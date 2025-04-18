@@ -1,11 +1,11 @@
 import { Stack, usePathname } from 'expo-router';
 
+import SignupBackButton from './BackButton';
+
 import MoneyBackButton from '@/components/BackButton';
 import { SIGNUP_STEPS } from '@/constants/signup';
 import { SignupFormProvider } from '@/contexts/signup-form';
 import { useTheme } from '@/contexts/theme';
-
-import SignupBackButton from './BackButton';
 
 export default function SignupLayout() {
   const theme = useTheme();

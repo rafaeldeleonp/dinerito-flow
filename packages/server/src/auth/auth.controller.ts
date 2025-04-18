@@ -1,3 +1,4 @@
+import { LoginResponse } from '@dinerito-flow/shared';
 import {
   ClassSerializerInterceptor,
   Controller,
@@ -9,11 +10,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-import { LoginResponse } from '@dinerito-flow/shared';
-import { UserEntity } from '../users/entities/user.entity';
+
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {

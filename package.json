@@ -19,16 +19,20 @@
   "scripts": {
     "build": "turbo run build",
     "start:dev": "turbo run start:dev",
+    "start:dev-server": "pnpm --filter=@dinerito-flow/server start:dev",
+    "start:dev-app": "pnpm --filter=@dinerito-flow/app start:dev",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "migrate:create": "cd packages/server && npm prisma migrate dev --name",
-    "migrate:deploy": "cd packages/server && pnpm prisma migrate deploy",
-    "migrate:status": "cd packages/server && pnpm prisma migrate status",
-    "migrate:reset": "cd packages/server && pnpm prisma migrate reset"
+    "migrate:create": "pnpm --filter=@dinerito-flow/server prisma migrate dev --name",
+    "migrate:deploy": "pnpm --filter=@dinerito-flow/server db-migrate-deploy",
+    "migrate:status": "pnpm --filter=@dinerito-flow/server db-migrate-status",
+    "migrate:reset": "pnpm --filter=@dinerito-flow/server db-migrate-reset"
   },
   "devDependencies": {
     "eslint": "9.15.0",
+    "eslint-import-resolver-typescript": "^4.3.2",
+    "eslint-plugin-import": "^2.31.0",
     "prettier": "3.3.3",
     "turbo": "latest",
     "typescript": "5.6.3"

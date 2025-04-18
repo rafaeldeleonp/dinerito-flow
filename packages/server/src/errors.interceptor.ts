@@ -1,6 +1,6 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiErrorResponse, formatDateToDatetime } from '@dinerito-flow/shared';
 import { ExceptionResponse } from '@dinerito-flow/shared/src/interfaces/response.interface';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch(HttpException)

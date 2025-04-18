@@ -1,5 +1,6 @@
 import { Injectable, OnModuleDestroy, Logger, Inject } from '@nestjs/common';
 import { Pool, ResultSetHeader, PoolConnection, QueryResult } from 'mysql2/promise';
+
 import { BaseRepository } from './base.repository';
 
 @Injectable()

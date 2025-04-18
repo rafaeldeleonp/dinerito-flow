@@ -1,16 +1,21 @@
-import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { randomInt } from 'node:crypto';
+
 import {
   CreateVerificationCodeDto,
   SendVerificationCodeDto,
   UpdateVerificationCodeDto,
   VerificationCode,
+  VerifyCode,
   VerifyVerificationCodeDto,
 } from '@dinerito-flow/shared';
-import { randomInt } from 'node:crypto';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RowDataPacket } from 'mysql2';
-import { EmailService } from '../email/email.service';
-import { DatabaseService } from '../database/database.service';
+
+import { UsersService } from 'src/users/users.service';
+
 import { VERIFICATION_CODE_EXPIRATION_MINUTES } from './constants';
+import { DatabaseService } from '../database/database.service';
+import { EmailService } from '../email/email.service';
 
 interface VerificationCodeRow extends VerificationCode, RowDataPacket {}
 
@@ -21,7 +26,8 @@ export class VerificationCodesService {
 
   constructor(
     private readonly databaseService: DatabaseService<VerificationCodeRow>,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private readonly usersService: UsersService
   ) {}
 
   private generateVerificationCode(): string {
@@ -30,8 +36,7 @@ export class VerificationCodesService {
 
   private updateVerificationCodeExpiration(): { expiresAt: Date } {
     const now = new Date();
-    const expiresAt = new Date(now);
-    expiresAt.setMinutes(VERIFICATION_CODE_EXPIRATION_MINUTES);
+    const expiresAt = new Date(now.getTime() + VERIFICATION_CODE_EXPIRATION_MINUTES * 60 * 1000);
 
     return {
       expiresAt,
@@ -66,27 +71,26 @@ export class VerificationCodesService {
     return this.databaseService.create(this.tableName, dto as Partial<VerificationCodeRow>);
   }
 
-  async verifyCode(verifyVerificationCodeDto: VerifyVerificationCodeDto): Promise<boolean> {
+  async verifyCode(verifyVerificationCodeDto: VerifyVerificationCodeDto): Promise<VerifyCode> {
     const verificationCode = await this.findOne(verifyVerificationCodeDto.email, verifyVerificationCodeDto.code);
 
-    if (!verificationCode) return false;
+    if (!verificationCode)
+      return {
+        verified: false,
+        expired: false,
+      };
 
     const nowUnix = Math.round(Date.now() / 1000);
     const expirationDateUnix = Math.round(new Date(verificationCode.expiresAt).getTime() / 1000);
     const differenceInMinutes = Math.round((nowUnix - expirationDateUnix) / 60);
     const isExpired = differenceInMinutes > VERIFICATION_CODE_EXPIRATION_MINUTES;
 
-    console.log(
-      nowUnix,
-      expirationDateUnix,
-      differenceInMinutes,
-      VERIFICATION_CODE_EXPIRATION_MINUTES,
-      differenceInMinutes < VERIFICATION_CODE_EXPIRATION_MINUTES
-    );
+    if (isExpired) return { verified: false, expired: true };
 
-    if (isExpired) return false;
-
-    return true;
+    return {
+      verified: true,
+      expired: false,
+    };
   }
 
   async update(updateVerificationCodeDto: UpdateVerificationCodeDto): Promise<VerificationCode> {
@@ -118,6 +122,9 @@ export class VerificationCodesService {
 
   async send(sendVerificationCodeDto: SendVerificationCodeDto): Promise<VerificationCode> {
     const verificationCode = await this.findOne(sendVerificationCodeDto.email);
+    const user = await this.usersService.findOne(sendVerificationCodeDto.email);
+
+    if (user) throw new ConflictException('User already exists');
 
     const newVerificationCode = verificationCode
       ? await this.update({ id: verificationCode.id, ...sendVerificationCodeDto, skipFindOne: true })

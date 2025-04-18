@@ -1,9 +1,10 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as SendGrid from '@sendgrid/mail';
 import * as nodemailer from 'nodemailer';
-import * as path from 'path';
-import * as fs from 'fs';
 
 const SHARED_TEMPLATES_KEYS = ['{{head}}', '{{logo}}', '{{footer}}'];
 

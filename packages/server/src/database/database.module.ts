@@ -1,8 +1,9 @@
 import { Module, Global, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createPool, Pool } from 'mysql2/promise';
-import { DatabaseService } from './database.service';
+
 import { BaseRepository } from './base.repository';
+import { DatabaseService } from './database.service';
 
 @Global()
 @Module({

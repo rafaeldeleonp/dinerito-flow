@@ -1,10 +1,11 @@
+import { Link } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import AppName from '@/components/AppName';
 import Button, { ButtonSize } from '@/components/Button';
 import MoneyLogo from '@/components/MoneyLogo';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
-import { Link } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
 
 export default function Home() {
   return (

@@ -1,6 +1,7 @@
+import { Stack } from 'expo-router';
+
 import MoneyBackButton from '@/components/BackButton';
 import { useTheme } from '@/contexts/theme';
-import { Stack } from 'expo-router';
 
 export default function AuthLayout() {
   const theme = useTheme();
@@ -8,7 +9,6 @@ export default function AuthLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
         headerTitle: '',
         headerShadowVisible: false,
         headerStyle: {
@@ -19,7 +19,6 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="login" />
-      <Stack.Screen name="sign-up" />
     </Stack>
   );
 }

@@ -1,9 +1,10 @@
+import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
 import * as bcrypt from 'bcrypt';
-import { DatabaseService } from '../database/database.service';
 import { RowDataPacket } from 'mysql2';
+
+import { DatabaseService } from '../database/database.service';
 
 interface UserRow extends User, RowDataPacket {}
 

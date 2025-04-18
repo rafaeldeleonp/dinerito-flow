@@ -1,4 +1,5 @@
 import { View, type ViewProps } from 'react-native';
+
 import { useTheme } from '@/contexts/theme';
 
 export type ThemedViewProps = ViewProps & {

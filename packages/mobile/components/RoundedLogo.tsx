@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { PRIMARY_COLOR } from '@/constants/Colors';
+
 export default function RoundedLogo() {
   return (
     <View style={styles.iconContainer}>
@@ -14,7 +16,7 @@ const styles = StyleSheet.create({
     height: 200,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#547c4c',
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 9999,
     marginBottom: 50,
     padding: 0,

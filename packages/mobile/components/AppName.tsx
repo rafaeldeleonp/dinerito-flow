@@ -1,5 +1,8 @@
-import { useTheme } from '@/contexts/theme';
 import { StyleSheet, View } from 'react-native';
+
+import { PRIMARY_COLOR } from '@/constants/Colors';
+import { useTheme } from '@/contexts/theme';
+
 import { ThemedText, ThemedTextType } from './ThemedText';
 
 type AppNameProps = {
@@ -12,7 +15,7 @@ export default function AppName({ containerStyle }: AppNameProps) {
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <ThemedText type={textType} style={styles.title} lightColor="#547c4c" darkColor="#547c4c">
+      <ThemedText type={textType} style={styles.title} lightColor={PRIMARY_COLOR} darkColor={PRIMARY_COLOR}>
         Dinerito{' '}
       </ThemedText>
       <ThemedText type={textType} style={[styles.title, { color: theme.text }]}>

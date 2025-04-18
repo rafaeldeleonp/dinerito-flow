@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useColorScheme } from 'react-native';
+
 import { Colors } from '@/constants/Colors';
 
 const ThemeContext = createContext(Colors.light);

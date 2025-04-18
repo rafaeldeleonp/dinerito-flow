@@ -3,7 +3,7 @@
     // Project Structure
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [".*"]
     },
 
     // Module Resolution
@@ -23,5 +23,5 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  },
+  }
 }

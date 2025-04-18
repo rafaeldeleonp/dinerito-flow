@@ -1,4 +1,5 @@
-import { Pressable, PressableProps, StyleSheet, Text, useColorScheme } from 'react-native';
+import React, { forwardRef } from 'react';
+import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 export enum ButtonVariant {
   PRIMARY = 'primary',
@@ -16,6 +17,8 @@ type ButtonProps = PressableProps & {
   variant?: ButtonVariant.PRIMARY | ButtonVariant.SECONDARY;
   size?: ButtonSize.SMALL | ButtonSize.MEDIUM | ButtonSize.LARGE;
   width?: number | string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 };
 
 const DEFAULT_COLOR = '#588166';
@@ -78,38 +81,58 @@ const BUTTON_SIZE_STYLES = {
   },
 };
 
-export default function Button({
-  text,
-  variant = ButtonVariant.PRIMARY,
-  size = ButtonSize.SMALL,
-  width = '100%',
-  style,
-  ...rest
-}: ButtonProps) {
-  const colorScheme = useColorScheme() || 'light';
+// Convert to forwardRef component
+const Button = forwardRef<View, ButtonProps>(
+  (
+    {
+      text,
+      variant = ButtonVariant.PRIMARY,
+      size = ButtonSize.SMALL,
+      width = '100%',
+      style,
+      isLoading = false,
+      isDisabled = false,
+      ...rest
+    },
+    ref
+  ) => {
+    const colorScheme = useColorScheme() || 'light';
 
-  return (
-    <Pressable
-      style={() => [
-        { height: BUTTON_SIZE_STYLES[size].height, width: width },
-        styles.btn,
-        THEME_VARIANT_STYLES[colorScheme][variant].btn,
-        style,
-      ]}
-      {...rest}
-    >
-      <Text
-        style={[
-          { fontSize: BUTTON_SIZE_STYLES[size].fontSize },
-          styles.btnText,
-          THEME_VARIANT_STYLES[colorScheme][variant].text,
+    return (
+      <Pressable
+        ref={ref}
+        style={() => [
+          { height: BUTTON_SIZE_STYLES[size].height, width: width },
+          styles.btn,
+          isDisabled || isLoading ? styles.btnDisabled : {},
+          THEME_VARIANT_STYLES[colorScheme][variant].btn,
+          style,
         ]}
+        disabled={isDisabled || isLoading}
+        {...rest}
       >
-        {text}
-      </Text>
-    </Pressable>
-  );
-}
+        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <Text
+            style={[
+              { fontSize: BUTTON_SIZE_STYLES[size].fontSize },
+              styles.btnText,
+              THEME_VARIANT_STYLES[colorScheme][variant].text,
+            ]}
+          >
+            {text}
+          </Text>
+          {isLoading && <ActivityIndicator style={styles.activityIndicator} size="small" color={DEFAULT_TEXT_COLOR} />}
+        </View>
+      </Pressable>
+    );
+  }
+);
+
+// Add display name for better debugging
+Button.displayName = 'Button';
+
+// Export as default
+export default Button;
 
 const styles = StyleSheet.create({
   btn: {
@@ -117,7 +140,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
   },
+  btnDisabled: {
+    opacity: 0.75,
+  },
   btnText: {
     fontWeight: '600',
+  },
+  activityIndicator: {
+    marginLeft: 8,
   },
 });

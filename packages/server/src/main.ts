@@ -1,9 +1,10 @@
-import { NestFactory } from '@nestjs/core';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module';
-import { TransformInterceptor } from './transform.interceptor';
 import { HttpExceptionFilter } from './errors.interceptor';
 import { RequestLoggerInterceptor } from './request-logger.interceptor';
+import { TransformInterceptor } from './transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

@@ -1,3 +1,4 @@
+import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
 import {
   BadRequestException,
   Body,
@@ -14,10 +15,10 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
 import { Request as ExpressRequest } from 'express';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UserEntity } from './entities/user.entity';
 
 @Controller('users')

@@ -1,5 +1,7 @@
-import { useTheme } from '@/contexts/theme';
 import { Text, type TextProps, StyleSheet } from 'react-native';
+
+import { PRIMARY_COLOR } from '@/constants/Colors';
+import { useTheme } from '@/contexts/theme';
 
 export enum ThemedTextType {
   DEFAULT = 'default',
@@ -7,6 +9,7 @@ export enum ThemedTextType {
   TITLE = 'title',
   SUBTITLE = 'subtitle',
   LINK = 'link',
+  ERROR = 'error',
 }
 
 export type ThemedTextProps = TextProps & {
@@ -17,7 +20,8 @@ export type ThemedTextProps = TextProps & {
     | ThemedTextType.DEFAULT_SEMI_BOLD
     | ThemedTextType.TITLE
     | ThemedTextType.SUBTITLE
-    | ThemedTextType.LINK;
+    | ThemedTextType.LINK
+    | ThemedTextType.ERROR;
 };
 
 export function ThemedText({ style, lightColor, darkColor, type = ThemedTextType.DEFAULT, ...rest }: ThemedTextProps) {
@@ -27,12 +31,13 @@ export function ThemedText({ style, lightColor, darkColor, type = ThemedTextType
   return (
     <Text
       style={[
-        { color },
+        { color: type === ThemedTextType.ERROR ? theme.error : color },
         type === ThemedTextType.DEFAULT ? styles.default : undefined,
         type === ThemedTextType.DEFAULT_SEMI_BOLD ? styles.defaultSemiBold : undefined,
         type === ThemedTextType.TITLE ? styles.title : undefined,
         type === ThemedTextType.SUBTITLE ? styles.subtitle : undefined,
         type === ThemedTextType.LINK ? styles.link : undefined,
+        type === ThemedTextType.ERROR ? styles.error : undefined,
         style,
       ]}
       {...rest}
@@ -58,10 +63,16 @@ const styles = StyleSheet.create({
   [ThemedTextType.SUBTITLE]: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 28,
   },
   [ThemedTextType.LINK]: {
     lineHeight: 30,
     fontSize: 16,
-    color: '#547c4c',
+    color: PRIMARY_COLOR,
+  },
+  [ThemedTextType.ERROR]: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 12,
   },
 });

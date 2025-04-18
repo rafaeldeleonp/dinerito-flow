@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
 import { SendWelcomeEmailDto } from '@dinerito-flow/shared';
+import { Body, Controller, Post } from '@nestjs/common';
+
 import { EmailService } from './email.service';
 
 @Controller('emails')

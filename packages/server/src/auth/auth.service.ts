@@ -1,6 +1,7 @@
+import { JwtPayload, LoginResponse, User } from '@dinerito-flow/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload, LoginResponse, User } from '@dinerito-flow/shared';
+
 import { UsersService } from '../users/users.service';
 
 @Injectable()

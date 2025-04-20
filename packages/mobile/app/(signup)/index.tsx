@@ -9,6 +9,7 @@ import { EMAIL } from '@/constants/common';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
 import FetchService from '@/services/fetchService';
 import { FetchingState } from '@/types/signup';
+import { isConflictStatusCode, isSuccessStatusCode } from '@/utils/responseStatus';
 
 export default function SignupEnterEmail() {
   const {
@@ -27,15 +28,15 @@ export default function SignupEnterEmail() {
       email: values[EMAIL],
     });
 
-    if (response.statusCode !== 201 && response.statusCode !== 409) {
-      setEnterEmailState({ isFetching: false, error: 'Failed to send verification code. Please try again.' });
+    if (isSuccessStatusCode(response.statusCode) && response.success) {
+      nextStep(values);
       return;
-    } else if (response.statusCode === 409) {
+    } else if (isConflictStatusCode(response.statusCode)) {
       setEnterEmailState({ isFetching: false, error: 'Email already exists. Please try again.' });
       return;
     }
 
-    if (response.success) nextStep(values);
+    setEnterEmailState({ isFetching: false, error: 'Failed to send verification code. Please try again.' });
   };
 
   return (

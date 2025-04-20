@@ -7,7 +7,7 @@ import MoneyLogo from '@/components/MoneyLogo';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 
-export default function Home() {
+export default function Landing() {
   return (
     <ThemedSafeAreaView style={styles.container}>
       <AppName />

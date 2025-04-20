@@ -9,6 +9,7 @@ import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { EMAIL, PASSWORD } from '@/constants/common';
+import { useAuth } from '@/contexts/authentication';
 
 const schema = z.object({
   [EMAIL]: z.string().email('Invalid email address.').nonempty('Email address is required.'),
@@ -18,7 +19,9 @@ const schema = z.object({
 export type LoginFormData = z.infer<typeof schema>;
 
 export default function Login() {
-  const { control } = useForm<LoginFormData>({
+  const { logIn } = useAuth();
+
+  const { control, handleSubmit } = useForm<LoginFormData>({
     resolver: zodResolver(schema),
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
@@ -27,6 +30,10 @@ export default function Login() {
       [PASSWORD]: '',
     },
   });
+
+  const handlePress = async (values: LoginFormData) => {
+    await logIn(values[EMAIL], values[PASSWORD]);
+  };
 
   return (
     <ThemedView>
@@ -40,7 +47,7 @@ export default function Login() {
       <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Password</ThemedText>
       <ThemedInput name={PASSWORD} control={control} textContentType="password" secureTextEntry />
 
-      <Button text="Log in" style={{ marginTop: 8 }} />
+      <Button text="Log in" style={{ marginTop: 8 }} onPress={handleSubmit(handlePress)} />
 
       <Link style={[styles.link, { marginTop: 20 }]} href="/(auth)/reset-password">
         <ThemedText type={ThemedTextType.LINK}>Forgot your password?</ThemedText>

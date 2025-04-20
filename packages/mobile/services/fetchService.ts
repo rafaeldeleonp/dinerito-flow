@@ -15,12 +15,38 @@ class FetchService {
     return `${this.baseURL}${relativeUrl}`;
   }
 
-  private async fetch<T>(url: string, options?: RequestInit): Promise<ApiResponse<T> | ApiErrorResponse> {
+  private getFetchOptions(token?: string, options?: RequestInit): RequestInit | undefined {
+    if (!options && !token) return undefined;
+
+    const newOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...options?.headers,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    };
+
+    if (token) {
+      newOptions.headers = {
+        ...newOptions.headers,
+        Authorization: `Bearer ${token}`,
+      };
+    }
+
+    return newOptions;
+  }
+
+  private async fetch<T>(
+    url: string,
+    token?: string,
+    options?: RequestInit
+  ): Promise<ApiResponse<T> | ApiErrorResponse> {
     try {
-      const response = await fetch(this.apiUrl(url), options);
+      const response = await fetch(this.apiUrl(url), this.getFetchOptions(token, options));
       const responseJson = await response.json();
 
-      return response.ok ? (responseJson as Promise<ApiResponse<T>>) : (responseJson as Promise<ApiErrorResponse>);
+      return response.ok ? (responseJson as ApiResponse<T>) : (responseJson as ApiErrorResponse);
     } catch {
       return {
         success: false,
@@ -33,16 +59,13 @@ class FetchService {
     }
   }
 
-  async get<T>(url: string): Promise<ApiResponse<T> | ApiErrorResponse> {
-    return this.fetch<T>(url);
+  async get<T>(url: string, token?: string): Promise<ApiResponse<T> | ApiErrorResponse> {
+    return this.fetch<T>(url, token);
   }
 
-  async post<T>(url: string, data: any): Promise<ApiResponse<T> | ApiErrorResponse> {
-    return this.fetch<T>(url, {
+  async post<T>(url: string, data: any, token?: string): Promise<ApiResponse<T> | ApiErrorResponse> {
+    return this.fetch<T>(url, token, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(data),
     });
   }

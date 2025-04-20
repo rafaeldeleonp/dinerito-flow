@@ -40,7 +40,7 @@ export class BaseRepository<T> {
   }
 
   async findById(table: string, id: number): Promise<T | null> {
-    const results = await this.connection.query<RowDataPacket[]>(`SELECT * FROM ${table} WHERE id = ?`, [id]);
+    const [results] = await this.connection.query<RowDataPacket[]>(`SELECT * FROM ${table} WHERE id = ?`, [id]);
     return results.length > 0 ? (results[0] as T) : null;
   }
 

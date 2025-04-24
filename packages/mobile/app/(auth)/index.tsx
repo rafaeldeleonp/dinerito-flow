@@ -1,17 +1,19 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import AppName from '@/components/AppName';
 import Button, { ButtonSize, ButtonVariant } from '@/components/Button';
-import RoundedLogo from '@/components/RoundedLogo';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
+
+const MoneyFlowIcon = require('@/assets/images/money-flow.svg');
 
 export default function Auth() {
   return (
     <ThemedSafeAreaView style={styles.container}>
       <AppName />
+      <Image alt="Money Flow" style={styles.image} source={MoneyFlowIcon} contentFit="contain" />
       <View style={styles.bottomContainer}>
-        <RoundedLogo />
         <Link href="/(auth)/login" asChild>
           <Button text="Login" size={ButtonSize.LARGE} />
         </Link>
@@ -35,5 +37,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  image: {
+    flex: 1,
+    width: '100%',
   },
 });

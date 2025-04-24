@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts/authentication';
 export default function ProtectedLayout() {
   const authState = useAuth();
 
-  console.log('ProtectedLayout', authState);
+  console.log('Auth state:', authState);
 
-  if (!authState.isLoggedIn) return <Redirect href="/(auth)/login" />;
+  if (!authState.isLoggedIn && !authState.isLoading) return <Redirect href="/" />;
 
   return (
     <Stack

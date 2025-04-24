@@ -1,18 +1,20 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import AppName from '@/components/AppName';
 import Button, { ButtonSize } from '@/components/Button';
-import MoneyLogo from '@/components/MoneyLogo';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
+
+const AppIcon = require('@/assets/images/icon.png');
 
 export default function Landing() {
   return (
     <ThemedSafeAreaView style={styles.container}>
       <AppName />
+      <Image alt="App icon" style={styles.image} source={AppIcon} contentFit="contain" />
       <View style={styles.bottomContainer}>
-        <MoneyLogo />
         <ThemedText type={ThemedTextType.TITLE} style={styles.title}>
           Track your expenses effortlessly
         </ThemedText>
@@ -37,5 +39,9 @@ const styles = StyleSheet.create({
   bottomContainer: {
     width: '100%',
     alignItems: 'center',
+  },
+  image: {
+    flex: 1,
+    width: '100%',
   },
 });

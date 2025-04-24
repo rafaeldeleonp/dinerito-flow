@@ -7,9 +7,8 @@ import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
 import { FIRST_NAME, LAST_NAME } from '@/constants/signup';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
-import fetchService from '@/services/fetchService';
+import signupService from '@/services/signupService';
 import { FetchingState } from '@/types/signup';
-import { isConflictStatusCode, isSuccessStatusCode } from '@/utils/responseStatus';
 
 export default function SignupPassword() {
   const {
@@ -24,23 +23,19 @@ export default function SignupPassword() {
   const handlePress = async (values: SignupFormData) => {
     setCreateAccountState({ isFetching: true, error: null });
 
-    const response = await fetchService.post('/users/', {
+    const response = await signupService.createAccount({
       [EMAIL]: values[EMAIL],
       [PASSWORD]: values[PASSWORD],
       [FIRST_NAME]: values[FIRST_NAME],
       [LAST_NAME]: values[LAST_NAME],
     });
 
-    if (isSuccessStatusCode(response.statusCode) && response.success) {
-      setCreateAccountState({ isFetching: false, error: null });
-      nextStep(values);
-      return;
-    } else if (isConflictStatusCode(response.statusCode)) {
-      setCreateAccountState({ isFetching: false, error: 'Email already exists. Please try again.' });
+    if (response === null) {
+      setCreateAccountState({ isFetching: false, error: 'Failed to create account. Please try again.' });
       return;
     }
 
-    setCreateAccountState({ isFetching: false, error: 'Failed to create account. Please try again.' });
+    nextStep(values);
   };
 
   return (

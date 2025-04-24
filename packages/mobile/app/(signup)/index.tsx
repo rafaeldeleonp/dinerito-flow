@@ -7,9 +7,8 @@ import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { EMAIL } from '@/constants/common';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
-import FetchService from '@/services/fetchService';
+import signupService from '@/services/signupService';
 import { FetchingState } from '@/types/signup';
-import { isConflictStatusCode, isSuccessStatusCode } from '@/utils/responseStatus';
 
 export default function SignupEnterEmail() {
   const {
@@ -24,19 +23,14 @@ export default function SignupEnterEmail() {
   const handlePress = async (values: SignupFormData) => {
     setEnterEmailState({ isFetching: true, error: null });
 
-    const response = await FetchService.post<VerificationCode>('/verification-codes/send/', {
-      email: values[EMAIL],
-    });
+    const response = await signupService.sendVerificationCode(values[EMAIL]);
 
-    if (isSuccessStatusCode(response.statusCode) && response.success) {
-      nextStep(values);
-      return;
-    } else if (isConflictStatusCode(response.statusCode)) {
-      setEnterEmailState({ isFetching: false, error: 'Email already exists. Please try again.' });
+    if (!response.success) {
+      setEnterEmailState({ isFetching: false, error: response.error });
       return;
     }
 
-    setEnterEmailState({ isFetching: false, error: 'Failed to send verification code. Please try again.' });
+    nextStep(values);
   };
 
   return (

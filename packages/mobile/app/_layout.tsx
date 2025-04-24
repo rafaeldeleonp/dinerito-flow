@@ -3,42 +3,13 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Text } from 'react-native';
 
 import MoneyBackButton from '@/components/BackButton';
-import { AuthProvider, useAuth } from '@/contexts/authentication';
+import { AuthProvider } from '@/contexts/authentication';
 import { ThemeProvider } from '@/contexts/theme';
 import 'react-native-reanimated';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-function RootLayoutNav() {
-  const { isLoggedIn, isLoading } = useAuth();
-
-  if (isLoading) return <Text>Loading...</Text>;
-
-  return (
-    <>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          headerLeft: () => <MoneyBackButton />,
-        }}
-      >
-        {isLoggedIn ? (
-          <Stack.Screen name="(protected)" />
-        ) : (
-          <>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="+not-found" />
-          </>
-        )}
-      </Stack>
-      <StatusBar style="auto" />
-    </>
-  );
-}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -58,7 +29,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <RootLayoutNav />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            headerLeft: () => <MoneyBackButton />,
+          }}
+        >
+          <Stack.Screen name="index" options={{ animation: 'none' }} />
+          <Stack.Screen name="(protected)" options={{ animation: 'none' }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
       </AuthProvider>
     </ThemeProvider>
   );

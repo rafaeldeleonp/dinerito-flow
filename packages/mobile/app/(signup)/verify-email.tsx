@@ -1,4 +1,3 @@
-import { ApiResponse, VerificationCode, VerifyCode } from '@dinerito-flow/shared';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,7 +9,7 @@ import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { EMAIL } from '@/constants/common';
 import { CODE, INITIAL_FETCHING_STATE } from '@/constants/signup';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
-import fetchService from '@/services/fetchService';
+import signupService from '@/services/signupService';
 import { FetchingState } from '@/types/signup';
 
 export default function SignupVerifyEmail() {
@@ -30,33 +29,22 @@ export default function SignupVerifyEmail() {
   const resendCode = async () => {
     setResendCodeState({ isFetching: true, error: null });
 
-    const response = await fetchService.post<VerificationCode>('/verification-codes/send/', {
-      email: email,
-    });
+    const response = await signupService.sendVerificationCode(email);
 
-    const state: FetchingState = { ...INITIAL_FETCHING_STATE };
-
-    if (!response.success) state.error = 'Failed to resend code. Please try again.';
-
-    setResendCodeState(state);
+    setResendCodeState({ isFetching: false, error: response.error });
   };
 
   const handlePress = async (values: SignupFormData) => {
     setVerifyEmailState({ isFetching: true, error: null });
 
-    const response = await fetchService.post<VerifyCode>('/verification-codes/verify/', {
-      email: email,
-      code: values[CODE],
-    });
+    const response = await signupService.verifyCode(email, values[CODE]);
 
-    const data = response.statusCode !== 500 ? ((response as ApiResponse<VerifyCode>).data as VerifyCode) : null;
-    const state: FetchingState = { ...INITIAL_FETCHING_STATE };
+    if (!response.success) {
+      setVerifyEmailState({ isFetching: false, error: response.error });
+      return;
+    }
 
-    if (data?.verified) nextStep(values);
-    else if (data?.expired) state.error = 'Verification code expired. Please request a new one.';
-    else state.error = 'Invalid verification code. Please try again.';
-
-    setVerifyEmailState(state);
+    nextStep(values);
   };
 
   return (

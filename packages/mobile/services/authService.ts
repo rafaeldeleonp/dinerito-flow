@@ -1,4 +1,4 @@
-import { ApiResponse, LoginResponse } from '@dinerito-flow/shared';
+import { ApiResponse, LoginResponse, User } from '@dinerito-flow/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
@@ -9,6 +9,9 @@ import { isWeb } from '@/utils/environment';
 import { isErrorStatusCode, isServerErrorStatusCode } from '@/utils/responseStatus';
 
 class AuthService {
+  private readonly baseUrl = '/auth/';
+  private readonly baseUserUrl = '/users/';
+
   async getToken(): Promise<string | null> {
     let token = null;
 
@@ -37,8 +40,16 @@ class AuthService {
     }
   }
 
+  async getUser(token: string): Promise<User | null> {
+    const response = await fetchService.get<User | null>(`${this.baseUserUrl}me/`, token);
+
+    if (isErrorStatusCode(response.statusCode) || isServerErrorStatusCode(response.statusCode)) return null;
+
+    return (response as ApiResponse<User>).data as User;
+  }
+
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await fetchService.post<LoginResponse>('/auth/login/', {
+    const response = await fetchService.post<LoginResponse>(`${this.baseUrl}login/`, {
       email,
       password,
     });

@@ -123,7 +123,7 @@ export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     setCurrentStep(prevStep);
 
-    router.push(`/(signup)${SIGNUP_STEPS[prevStep]}` as RelativePathString);
+    router.back();
   };
 
   const nextStep = () => {

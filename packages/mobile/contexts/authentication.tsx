@@ -1,10 +1,10 @@
-// auth.context.tsx
 import { User } from '@dinerito-flow/shared';
-import { useRouter } from 'expo-router';
+import { useRouter, SplashScreen } from 'expo-router';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import authService from '@/services/authService';
-import userService from '@/services/userService';
+
+SplashScreen.preventAutoHideAsync();
 
 type AuthContextType = {
   user: User | null;
@@ -34,13 +34,18 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [authState, setAuthState] = useState<AuthProviderState>(INITIAL_STATE);
-  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  console.log('Auth state:', authState);
 
   useEffect(() => {
-    loadStoredToken().finally(() => {
-      setIsInitialized(true);
-    });
+    loadStoredToken();
   }, []);
+
+  useEffect(() => {
+    if (!authState.isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [authState.isLoading]);
 
   function setLoadingState() {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
@@ -48,19 +53,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadStoredToken() {
     try {
-      setLoadingState();
-
       const token = await authService.getToken();
       let userData: User | null = null;
 
       if (token) {
-        userData = await userService.getUser(token);
-      }
+        userData = await authService.getUser(token);
 
-      setAuthState({
-        user: userData,
-        isLoading: false,
-      });
+        setAuthState({
+          user: userData,
+          isLoading: false,
+        });
+      }
     } catch (error) {
       console.error('Failed to load auth state', error);
 
@@ -75,6 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { user } = await authService.login(email, password);
 
       setAuthState({ user, isLoading: false });
+
+      router.replace('/(protected)/home');
     } catch (error) {
       console.error('Log in failed:', error);
 
@@ -91,10 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setAuthState(INITIAL_STATE);
 
-    router.replace('./index');
+    router.replace('/');
   }
-
-  if (!isInitialized) return null;
 
   return (
     <AuthContext.Provider

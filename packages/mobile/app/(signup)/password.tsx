@@ -16,6 +16,7 @@ export default function SignupPassword() {
       control,
       formState: { errors },
     },
+    translate,
     nextStep,
   } = useSignupForm();
   const [createAccountState, setCreateAccountState] = useState<FetchingState>({ isFetching: false, error: null });
@@ -31,18 +32,24 @@ export default function SignupPassword() {
     });
 
     if (response === null) {
-      setCreateAccountState({ isFetching: false, error: 'Failed to create account. Please try again.' });
+      setCreateAccountState({ isFetching: false, error: translate('signup.password.error') });
       return;
     }
+
+    setCreateAccountState({ isFetching: false, error: null });
 
     nextStep(values);
   };
 
   return (
-    <SignupWrapper buttonText="Submit" onPress={handlePress}>
-      <ThemedText type={ThemedTextType.SUBTITLE}>Password</ThemedText>
+    <SignupWrapper
+      buttonText={translate('signup.password.button')}
+      loadingText={translate('signup.password.loading')}
+      onPress={handlePress}
+    >
+      <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.password.title')}</ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Password</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('signup.password.passwordLabel')}</ThemedText>
       <ThemedInput
         name={PASSWORD}
         control={control}
@@ -51,7 +58,9 @@ export default function SignupPassword() {
         errorText={errors[PASSWORD]?.message}
       />
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Confirm password</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>
+        {translate('signup.password.confirmPasswordLabel')}
+      </ThemedText>
       <ThemedInput
         name={CONFIRM_PASSWORD}
         control={control}

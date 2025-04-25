@@ -5,21 +5,24 @@ import { StyleSheet, View } from 'react-native';
 import AppName from '@/components/AppName';
 import Button, { ButtonSize, ButtonVariant } from '@/components/Button';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
+import { useLocale } from '@/contexts/locale';
 
 const MoneyFlowIcon = require('@/assets/images/money-flow.svg');
 
 export default function Auth() {
+  const { translate } = useLocale();
+
   return (
     <ThemedSafeAreaView style={styles.container}>
       <AppName />
       <Image alt="Money Flow" style={styles.image} source={MoneyFlowIcon} contentFit="contain" />
       <View style={styles.bottomContainer}>
         <Link href="/(auth)/login" asChild>
-          <Button text="Login" size={ButtonSize.LARGE} />
+          <Button text={translate('auth.login.button')} size={ButtonSize.LARGE} />
         </Link>
 
         <Link href="/(signup)" style={{ marginTop: 20 }} asChild>
-          <Button text="Register" variant={ButtonVariant.SECONDARY} size={ButtonSize.LARGE} />
+          <Button text={translate('signup.button')} variant={ButtonVariant.SECONDARY} size={ButtonSize.LARGE} />
         </Link>
       </View>
     </ThemedSafeAreaView>

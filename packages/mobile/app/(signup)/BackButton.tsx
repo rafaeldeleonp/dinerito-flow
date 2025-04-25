@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/theme';
 
 export default function SignupBackButton() {
   const theme = useTheme();
-  const { previousStep } = useSignupForm();
+  const { translate, previousStep } = useSignupForm();
 
   return (
     <TouchableOpacity
@@ -17,7 +17,7 @@ export default function SignupBackButton() {
     >
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
         <Ionicons name="chevron-back" size={32} color={theme.tint} />
-        <Text style={{ color: theme.tint, fontSize: 16, marginLeft: 4 }}>Back</Text>
+        <Text style={{ color: theme.tint, fontSize: 16, marginLeft: 4 }}>{translate('signup.backButton')}</Text>
       </View>
     </TouchableOpacity>
   );

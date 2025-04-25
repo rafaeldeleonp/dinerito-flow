@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { useForm, FormProvider } from 'react-hook-form';
 import * as z from 'zod';
 
+import { TranslateFn, useLocale } from './locale';
+
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
 import {
   CODE,
@@ -14,29 +16,34 @@ import {
   VERIFICATION_CODE_LENGTH,
 } from '@/constants/signup';
 
-const createStepValidator = (currentStep: number) => {
+const createStepValidator = (currentStep: number, translate: TranslateFn) => {
   return z
     .object({
       [EMAIL]:
         currentStep >= 0
-          ? z.string().email('Invalid email address.').nonempty('Email address is required.')
+          ? z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail'))
           : z.string().optional(),
       [CODE]:
         currentStep >= 1
           ? z
               .string()
-              .min(VERIFICATION_CODE_LENGTH, `Verification code must be ${VERIFICATION_CODE_LENGTH} digits`)
-              .nonempty('Verification code is required')
+              .min(
+                VERIFICATION_CODE_LENGTH,
+                translate('validation.minVerificationCodeLength', { min: VERIFICATION_CODE_LENGTH })
+              )
+              .nonempty(translate('validation.requiredVerificationCode'))
           : z.string().optional(),
-      [FIRST_NAME]: currentStep >= 2 ? z.string().nonempty('First name is required') : z.string().optional(),
-      [LAST_NAME]: currentStep >= 2 ? z.string().nonempty('Last name is required') : z.string().optional(),
+      [FIRST_NAME]:
+        currentStep >= 2 ? z.string().nonempty(translate('validation.requiredFirstName')) : z.string().optional(),
+      [LAST_NAME]:
+        currentStep >= 2 ? z.string().nonempty(translate('validation.requiredLastName')) : z.string().optional(),
       [PASSWORD]:
         currentStep >= 3
-          ? z.string().min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters`)
+          ? z.string().min(MIN_PASSWORD_LENGTH, translate('validation.minPasswordLength', { min: MIN_PASSWORD_LENGTH }))
           : z.string().optional(),
       [CONFIRM_PASSWORD]:
         currentStep >= 3
-          ? z.string().min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters`)
+          ? z.string().min(MIN_PASSWORD_LENGTH, translate('validation.minPasswordLength', { min: MIN_PASSWORD_LENGTH }))
           : z.string().optional(),
     })
     .refine(
@@ -46,7 +53,7 @@ const createStepValidator = (currentStep: number) => {
         return data[PASSWORD] === data[CONFIRM_PASSWORD];
       },
       {
-        message: "Passwords don't match",
+        message: translate('validation.passwordsDontMatch'),
         path: [CONFIRM_PASSWORD], // This will show the error under confirm password field
       }
     );
@@ -64,6 +71,7 @@ export type SignupFormData = {
 interface SignupFormContextProps {
   methods: ReturnType<typeof useForm<SignupFormData>>;
   currentStep: number;
+  translate: TranslateFn;
   nextStep: (data: SignupFormData) => void;
   previousStep: () => void;
 }
@@ -71,11 +79,13 @@ interface SignupFormContextProps {
 const SignupFormContext = createContext<SignupFormContextProps>({
   methods: {} as ReturnType<typeof useForm<SignupFormData>>,
   currentStep: 0,
+  translate: (scope: string) => scope,
   nextStep: (data: SignupFormData) => {},
   previousStep: () => {},
 });
 
 export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { translate } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const previousPathRef = useRef(pathname);
@@ -83,7 +93,7 @@ export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const methods = useForm<SignupFormData>({
     resolver: (data, context, options) => {
-      const stepValidator = createStepValidator(currentStep);
+      const stepValidator = createStepValidator(currentStep, translate);
       return zodResolver(stepValidator)(data, context, options);
     },
     mode: 'onSubmit',
@@ -135,7 +145,7 @@ export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   return (
-    <SignupFormContext.Provider value={{ methods, currentStep, nextStep, previousStep }}>
+    <SignupFormContext.Provider value={{ methods, currentStep, translate, nextStep, previousStep }}>
       <FormProvider {...methods}>{children}</FormProvider>
     </SignupFormContext.Provider>
   );

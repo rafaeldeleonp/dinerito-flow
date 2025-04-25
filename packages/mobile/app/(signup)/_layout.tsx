@@ -29,7 +29,7 @@ export default function SignupLayout() {
         <Stack.Screen name="verify-email" />
         <Stack.Screen name="personal-info" />
         <Stack.Screen name="password" />
-        <Stack.Screen name="account-created" />
+        <Stack.Screen name="account-created" options={{ headerShown: false }} />
       </Stack>
     </SignupFormProvider>
   );

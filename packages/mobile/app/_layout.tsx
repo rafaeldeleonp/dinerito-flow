@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import MoneyBackButton from '@/components/BackButton';
 import { AuthProvider } from '@/contexts/authentication';
+import { LocaleProvider } from '@/contexts/locale';
 import { ThemeProvider } from '@/contexts/theme';
 import 'react-native-reanimated';
 
@@ -28,19 +29,21 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            headerLeft: () => <MoneyBackButton />,
-          }}
-        >
-          <Stack.Screen name="index" options={{ animation: 'none' }} />
-          <Stack.Screen name="(protected)" options={{ animation: 'none' }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </AuthProvider>
+      <LocaleProvider>
+        <AuthProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              headerLeft: () => <MoneyBackButton />,
+            }}
+          >
+            <Stack.Screen name="index" options={{ animation: 'none' }} />
+            <Stack.Screen name="(protected)" options={{ animation: 'none' }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </AuthProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

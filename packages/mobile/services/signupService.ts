@@ -9,6 +9,7 @@ import {
 } from '@dinerito-flow/shared';
 
 import fetchService from './fetchService';
+import localeService from './localeService';
 
 import { isConflictStatusCode, isServerErrorStatusCode, isSuccessStatusCode } from '@/utils/responseStatus';
 
@@ -31,9 +32,9 @@ class signupService {
       verificationCodeResponse.success = true;
     } else if (isConflictStatusCode(response.statusCode)) {
       verificationCodeResponse.hasConflict = true;
-      verificationCodeResponse.error = 'Email already exists. Please try again.';
+      verificationCodeResponse.error = localeService.translate('signup.emailConflictError');
     } else {
-      verificationCodeResponse.error = 'Failed to send verification code. Please try again.';
+      verificationCodeResponse.error = localeService.translate('signup.sendVerificationCodeError');
     }
 
     return verificationCodeResponse;
@@ -55,8 +56,8 @@ class signupService {
 
     if (data?.verified) verificationCodeResponse.success = true;
     else if (data?.expired) {
-      verificationCodeResponse.error = 'Verification code expired. Please request a new one.';
-    } else verificationCodeResponse.error = 'Invalid verification code. Please try again.';
+      verificationCodeResponse.error = localeService.translate('signup.verificationCodeExpiredError');
+    } else verificationCodeResponse.error = localeService.translate('signup.invalidVerificationCodeError');
 
     return verificationCodeResponse;
   }

@@ -10,21 +10,30 @@ import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { EMAIL, PASSWORD } from '@/constants/common';
 import { useAuth } from '@/contexts/authentication';
+import { useLocale } from '@/contexts/locale';
 
-const schema = z.object({
-  [EMAIL]: z.string().email('Invalid email address.').nonempty('Email address is required.'),
-  [PASSWORD]: z.string().nonempty('Password is required'),
-});
-
-export type LoginFormData = z.infer<typeof schema>;
+export type LoginFormData = {
+  [EMAIL]: string;
+  [PASSWORD]: string;
+};
 
 export default function Login() {
   const { logIn } = useAuth();
+  const { translate } = useLocale();
 
-  const { control, handleSubmit } = useForm<LoginFormData>({
+  const schema = z.object({
+    [EMAIL]: z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail')),
+    [PASSWORD]: z.string().nonempty(translate('validation.requiredPassword')),
+  });
+
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<LoginFormData>({
     resolver: zodResolver(schema),
     mode: 'onSubmit',
-    reValidateMode: 'onBlur',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       [EMAIL]: '',
       [PASSWORD]: '',
@@ -32,29 +41,42 @@ export default function Login() {
   });
 
   const handlePress = async (values: LoginFormData) => {
+    console.log('Login values:', values);
     await logIn(values[EMAIL], values[PASSWORD]);
   };
 
   return (
     <ThemedView>
       <ThemedText type={ThemedTextType.TITLE} style={{ marginBottom: 32 }}>
-        Log in
+        {translate('auth.login.title')}
       </ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Your email</ThemedText>
-      <ThemedInput name={EMAIL} control={control} textContentType="emailAddress" keyboardType="email-address" />
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('auth.login.emailLabel')}</ThemedText>
+      <ThemedInput
+        name={EMAIL}
+        control={control}
+        textContentType="emailAddress"
+        keyboardType="email-address"
+        errorText={errors[EMAIL]?.message}
+      />
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Password</ThemedText>
-      <ThemedInput name={PASSWORD} control={control} textContentType="password" secureTextEntry />
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('auth.login.passwordLabel')}</ThemedText>
+      <ThemedInput
+        name={PASSWORD}
+        control={control}
+        textContentType="password"
+        secureTextEntry
+        errorText={errors[PASSWORD]?.message}
+      />
 
-      <Button text="Log in" style={{ marginTop: 8 }} onPress={handleSubmit(handlePress)} />
+      <Button text={translate('auth.login.button')} style={{ marginTop: 20 }} onPress={handleSubmit(handlePress)} />
 
       <Link style={[styles.link, { marginTop: 20 }]} href="/(auth)/reset-password">
-        <ThemedText type={ThemedTextType.LINK}>Forgot your password?</ThemedText>
+        <ThemedText type={ThemedTextType.LINK}>{translate('auth.login.forgotPassword')}</ThemedText>
       </Link>
 
       <Link style={[styles.link, { marginTop: 8 }]} href="/(signup)">
-        <ThemedText type={ThemedTextType.LINK}>Don't have an account? Sign up</ThemedText>
+        <ThemedText type={ThemedTextType.LINK}>{translate('auth.login.noAccount')}</ThemedText>
       </Link>
     </ThemedView>
   );

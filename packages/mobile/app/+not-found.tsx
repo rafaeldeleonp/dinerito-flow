@@ -3,17 +3,20 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
+import { useLocale } from '@/contexts/locale';
 
 export default function NotFoundScreen() {
+  const { translate } = useLocale();
+
   return (
     <ThemedSafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+      <Stack.Screen options={{ title: translate('notFouund.title') }} />
       <View style={styles.container}>
         <ThemedText type={ThemedTextType.TITLE} style={{ textAlign: 'center' }}>
-          This screen doesn't exist.
+          {translate('notFouund.message')}
         </ThemedText>
         <Link href="/" style={styles.link}>
-          <ThemedText type={ThemedTextType.LINK}>Go to home screen!</ThemedText>
+          <ThemedText type={ThemedTextType.LINK}>{translate('notFouund.button')}</ThemedText>
         </Link>
       </View>
     </ThemedSafeAreaView>

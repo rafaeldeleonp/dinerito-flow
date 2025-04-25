@@ -4,15 +4,22 @@ import { StyleSheet, View } from 'react-native';
 import SignupWrapper from './wrapper';
 
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
+import { useSignupForm } from '@/contexts/signup-form';
 
 export default function SignupAccountCreated() {
   const router = useRouter();
+  const { translate } = useSignupForm();
 
   return (
-    <SignupWrapper buttonText="Login" isLoading={false} onPress={() => router.replace('/login')}>
+    <SignupWrapper
+      buttonText={translate('signup.accountCreated.button')}
+      loadingText=""
+      isLoading={false}
+      onPress={() => router.replace('/login')}
+    >
       <View style={styles.innerContainer}>
         <ThemedText type={ThemedTextType.TITLE} style={styles.title}>
-          Your account created successfully!!
+          {translate('signup.accountCreated.message')}
         </ThemedText>
       </View>
     </SignupWrapper>

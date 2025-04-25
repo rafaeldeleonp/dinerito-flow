@@ -1,4 +1,3 @@
-import { VerificationCode } from '@dinerito-flow/shared';
 import { useState } from 'react';
 
 import SignupWrapper from './wrapper';
@@ -16,6 +15,7 @@ export default function SignupEnterEmail() {
       control,
       formState: { errors },
     },
+    translate,
     nextStep,
   } = useSignupForm();
   const [enterEmailState, setEnterEmailState] = useState<FetchingState>({ isFetching: false, error: null });
@@ -30,14 +30,21 @@ export default function SignupEnterEmail() {
       return;
     }
 
+    setEnterEmailState({ isFetching: false, error: null });
+
     nextStep(values);
   };
 
   return (
-    <SignupWrapper loadingText="Sending..." isLoading={enterEmailState.isFetching} onPress={handlePress}>
-      <ThemedText type={ThemedTextType.SUBTITLE}>Enter your email address</ThemedText>
+    <SignupWrapper
+      buttonText={translate('signup.submitButton')}
+      loadingText={translate('signup.enterEmail.loading')}
+      isLoading={enterEmailState.isFetching}
+      onPress={handlePress}
+    >
+      <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.enterEmail.title')}</ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Your email address</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('signup.enterEmail.emailLabel')}</ThemedText>
 
       <ThemedInput
         name={EMAIL}

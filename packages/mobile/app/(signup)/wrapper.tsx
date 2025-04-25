@@ -9,22 +9,23 @@ import { useTheme } from '@/contexts/theme';
 
 interface SignupScreenWrapperProps {
   children: React.ReactNode;
-  buttonText?: string;
-  loadingText?: string;
+  buttonText: string;
+  loadingText: string;
   isLoading?: boolean;
   onPress?: (values: SignupFormData) => void;
 }
 
 export default function SignupWrapper({
   children,
-  buttonText = 'Continue',
-  loadingText = 'Loading...',
+  buttonText,
+  loadingText,
   isLoading,
   onPress,
 }: SignupScreenWrapperProps) {
   const theme = useTheme();
   const { methods, currentStep, nextStep } = useSignupForm();
   const stepsLength = Object.keys(SIGNUP_STEPS).length;
+  const isLastStep = currentStep === stepsLength - 1;
 
   const handlePress = (values: SignupFormData) => {
     if (onPress) onPress(values);
@@ -33,15 +34,17 @@ export default function SignupWrapper({
 
   return (
     <ThemedSafeAreaView>
-      <View style={[styles.baseFormProgressBar, styles.formProgressBar, { backgroundColor: theme.background }]}>
-        <View
-          style={[
-            styles.baseFormProgressBar,
-            styles.formProgressBarFill,
-            { width: `${((currentStep + 1) / stepsLength) * 100}%` },
-          ]}
-        />
-      </View>
+      {!isLastStep && (
+        <View style={[styles.baseFormProgressBar, styles.formProgressBar, { backgroundColor: theme.background }]}>
+          <View
+            style={[
+              styles.baseFormProgressBar,
+              styles.formProgressBarFill,
+              { width: `${((currentStep + 1) / stepsLength) * 100}%` },
+            ]}
+          />
+        </View>
+      )}
       {children}
       <Button
         style={{ marginTop: 20 }}

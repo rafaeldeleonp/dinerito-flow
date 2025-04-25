@@ -11,16 +11,17 @@ export default function SignupVerifyEmail() {
       control,
       formState: { errors },
     },
+    translate,
   } = useSignupForm();
 
   return (
-    <SignupWrapper>
-      <ThemedText type={ThemedTextType.SUBTITLE}>Personal information</ThemedText>
+    <SignupWrapper buttonText={translate('signup.submitButton')} loadingText={translate('')}>
+      <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.personalInfo.title')}</ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>First name</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('signup.personalInfo.firstNameLabel')}</ThemedText>
       <ThemedInput name={FIRST_NAME} control={control} textContentType="name" errorText={errors[FIRST_NAME]?.message} />
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Last name</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('signup.personalInfo.lastNameLabel')}</ThemedText>
       <ThemedInput name={LAST_NAME} control={control} textContentType="name" errorText={errors[LAST_NAME]?.message} />
     </SignupWrapper>
   );

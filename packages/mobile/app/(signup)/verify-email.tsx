@@ -19,6 +19,7 @@ export default function SignupVerifyEmail() {
       formState: { errors },
       watch,
     },
+    translate,
     nextStep,
   } = useSignupForm();
   const [resendCodeState, setResendCodeState] = useState<FetchingState>(INITIAL_FETCHING_STATE);
@@ -44,14 +45,21 @@ export default function SignupVerifyEmail() {
       return;
     }
 
+    setVerifyEmailState({ isFetching: false, error: null });
+
     nextStep(values);
   };
 
   return (
-    <SignupWrapper loadingText="Verifying..." isLoading={verifyEmailState.isFetching} onPress={handlePress}>
-      <ThemedText type={ThemedTextType.SUBTITLE}>Verify your email address</ThemedText>
+    <SignupWrapper
+      buttonText={translate('signup.submitButton')}
+      loadingText={translate('signup.verifyEmail.loading')}
+      isLoading={verifyEmailState.isFetching}
+      onPress={handlePress}
+    >
+      <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.verifyEmail.title')}</ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Enter code</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('signup.verifyEmail.codeLabel')}</ThemedText>
 
       <ThemedOTPInput
         name={CODE}
@@ -62,10 +70,12 @@ export default function SignupVerifyEmail() {
       />
 
       <ThemedText type={ThemedTextType.DEFAULT} style={[styles.baseText, styles.codeText]}>
-        Didn't receive the code?
+        {translate('signup.verifyEmail.noReceiveCode')}
       </ThemedText>
       <View style={styles.messageContainer}>
-        <ThemedText style={[styles.baseText, styles.message]}>We have sent a six digit code to </ThemedText>
+        <ThemedText style={[styles.baseText, styles.message]}>
+          {translate('signup.verifyEmail.receiveCode')}{' '}
+        </ThemedText>
         <ThemedText style={[styles.baseText, styles.message, { fontWeight: 700 }]}>{email}.</ThemedText>
       </View>
 
@@ -75,7 +85,12 @@ export default function SignupVerifyEmail() {
         </ThemedText>
       )}
 
-      <Button text="Resend code" variant={ButtonVariant.SECONDARY} style={styles.button} onPress={resendCode} />
+      <Button
+        text={translate('signup.verifyEmail.resendCodeButton')}
+        variant={ButtonVariant.SECONDARY}
+        style={styles.button}
+        onPress={resendCode}
+      />
     </SignupWrapper>
   );
 }
@@ -89,7 +104,7 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
   },
   message: {

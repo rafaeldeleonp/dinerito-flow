@@ -20,3 +20,7 @@ export function isWeb(): boolean {
 export function isSimulator(): boolean {
   return !isWeb() && Constants.isDevice === false;
 }
+
+export function isDevice(): boolean {
+  return !isWeb() && Constants.isDevice === true;
+}

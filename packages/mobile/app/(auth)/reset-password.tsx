@@ -7,20 +7,27 @@ import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
+import { useLocale } from '@/contexts/locale';
 
-const schema = z
-  .object({
-    [EMAIL]: z.string().email('Invalid email address.').nonempty('Email address is required.'),
-    [PASSWORD]: z.string().nonempty('Password is required'),
-    [CONFIRM_PASSWORD]: z.string().nonempty('Confirm password is required'),
-  })
-  .refine((data) => data[PASSWORD] === data[CONFIRM_PASSWORD], {
-    message: "Passwords don't match",
-  });
-
-export type ResetPasswordFormData = z.infer<typeof schema>;
+export type ResetPasswordFormData = {
+  [EMAIL]: string;
+  [PASSWORD]: string;
+  [CONFIRM_PASSWORD]: string;
+};
 
 export default function ResetPassword() {
+  const { translate } = useLocale();
+
+  const schema = z
+    .object({
+      [EMAIL]: z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail')),
+      [PASSWORD]: z.string().nonempty(translate('validation.requiredPassword')),
+      [CONFIRM_PASSWORD]: z.string().nonempty(translate('validation.requiredConfirmPassword')),
+    })
+    .refine((data) => data[PASSWORD] === data[CONFIRM_PASSWORD], {
+      message: translate('validation.passwordsDontMatch'),
+    });
+
   const { control } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(schema),
     mode: 'onSubmit',
@@ -35,19 +42,21 @@ export default function ResetPassword() {
   return (
     <ThemedView>
       <ThemedText type={ThemedTextType.TITLE} style={{ marginBottom: 32 }}>
-        Reset your password
+        {translate('auth.resetPassword.title')}
       </ThemedText>
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Your email</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('auth.login.emailLabel')}</ThemedText>
       <ThemedInput name={EMAIL} control={control} textContentType="emailAddress" keyboardType="email-address" />
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Password</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>{translate('auth.login.passwordLabel')}</ThemedText>
       <ThemedInput name={PASSWORD} control={control} textContentType="password" secureTextEntry />
 
-      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>Confirm password</ThemedText>
+      <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>
+        {translate('auth.resetPassword.confirmPasswordLabel')}
+      </ThemedText>
       <ThemedInput name={CONFIRM_PASSWORD} control={control} textContentType="password" secureTextEntry />
 
-      <Button text="Submit" style={{ marginTop: 8 }} />
+      <Button text={translate('auth.resetPassword.button')} style={{ marginTop: 8 }} />
     </ThemedView>
   );
 }

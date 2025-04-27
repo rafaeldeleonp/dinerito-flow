@@ -2,7 +2,6 @@ import {
   CreateVerificationCodeDto,
   SendVerificationCodeDto,
   UpdateVerificationCodeDto,
-  VerifyCode,
   VerifyVerificationCodeDto,
 } from '@dinerito-flow/shared';
 import { Controller, Post, Body, UseInterceptors, ClassSerializerInterceptor, Put } from '@nestjs/common';
@@ -22,8 +21,9 @@ export class VerificationCodesController {
     return new VerificationCodeEntity(verificationCode);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('verify')
-  async verifyCode(@Body() verifyVerificationCodeDto: VerifyVerificationCodeDto): Promise<VerifyCode> {
+  async verifyCode(@Body() verifyVerificationCodeDto: VerifyVerificationCodeDto): Promise<VerificationCodeEntity> {
     return this.verificationCodesService.verifyCode(verifyVerificationCodeDto);
   }
 

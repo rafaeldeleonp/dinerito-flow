@@ -5,8 +5,3 @@ export enum SignupSteps {
   PASSWORD = '/password',
   ACCOUNT_CREATED = '/account-created',
 }
-
-export type FetchingState = {
-  isFetching: boolean;
-  error: string | null;
-};

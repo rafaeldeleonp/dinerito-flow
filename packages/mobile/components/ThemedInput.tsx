@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { StyleSheet, TextInput, TextInputProps } from 'react-native';
 
-import { ThemedText, ThemedTextType } from './ThemedText';
+import { FormError } from './FormError';
 
 import { useTheme } from '@/contexts/theme';
 
@@ -40,7 +40,7 @@ const ThemedInput = forwardRef<TextInput, ThemedInputProps<any>>(
             />
           )}
         />
-        {errorText && <ThemedText type={ThemedTextType.ERROR}>{errorText}</ThemedText>}
+        {errorText && <FormError style={{ marginBottom: 12 }} message={errorText} />}
       </>
     );
   }

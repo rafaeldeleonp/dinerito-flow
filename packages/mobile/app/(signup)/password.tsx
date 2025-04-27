@@ -1,16 +1,20 @@
+import { ApiErrorResponse } from '@dinerito-flow/shared';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import SignupWrapper from './wrapper';
 
+import FormError from '@/components/FormError';
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
 import { FIRST_NAME, LAST_NAME } from '@/constants/signup';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
-import signupService from '@/services/signupService';
-import { FetchingState } from '@/types/signup';
+import userService from '@/services/userService';
 
 export default function SignupPassword() {
+  const [createAccountError, setCreateAccountError] = useState<string | null>(null);
+
   const {
     methods: {
       control,
@@ -19,33 +23,31 @@ export default function SignupPassword() {
     translate,
     nextStep,
   } = useSignupForm();
-  const [createAccountState, setCreateAccountState] = useState<FetchingState>({ isFetching: false, error: null });
 
-  const handlePress = async (values: SignupFormData) => {
-    setCreateAccountState({ isFetching: true, error: null });
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: async (values: SignupFormData) => {
+      setCreateAccountError(null);
 
-    const response = await signupService.createAccount({
-      [EMAIL]: values[EMAIL],
-      [PASSWORD]: values[PASSWORD],
-      [FIRST_NAME]: values[FIRST_NAME],
-      [LAST_NAME]: values[LAST_NAME],
-    });
+      const response = await userService.create({
+        [EMAIL]: values[EMAIL],
+        [PASSWORD]: values[PASSWORD],
+        [FIRST_NAME]: values[FIRST_NAME],
+        [LAST_NAME]: values[LAST_NAME],
+      });
 
-    if (response === null) {
-      setCreateAccountState({ isFetching: false, error: translate('signup.password.error') });
-      return;
-    }
-
-    setCreateAccountState({ isFetching: false, error: null });
-
-    nextStep(values);
-  };
+      if (response.success) nextStep(values);
+      else if (!response.success && (response as ApiErrorResponse).errorCode) {
+        setCreateAccountError((response as ApiErrorResponse).errorCode.message);
+      }
+    },
+  });
 
   return (
     <SignupWrapper
       buttonText={translate('signup.password.button')}
       loadingText={translate('signup.password.loading')}
-      onPress={handlePress}
+      isLoading={isPending}
+      onPress={mutateAsync}
     >
       <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.password.title')}</ThemedText>
 
@@ -61,6 +63,7 @@ export default function SignupPassword() {
       <ThemedText type={ThemedTextType.DEFAULT_SEMI_BOLD}>
         {translate('signup.password.confirmPasswordLabel')}
       </ThemedText>
+
       <ThemedInput
         name={CONFIRM_PASSWORD}
         control={control}
@@ -69,7 +72,7 @@ export default function SignupPassword() {
         errorText={errors[CONFIRM_PASSWORD]?.message}
       />
 
-      {createAccountState.error && <ThemedText type={ThemedTextType.ERROR}>{createAccountState.error}</ThemedText>}
+      <FormError message={createAccountError} />
     </SignupWrapper>
   );
 }

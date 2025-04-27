@@ -1,4 +1,4 @@
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
+import { ChangePasswordDto, CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -19,7 +19,7 @@ export class UsersService {
 
   private async hashPassword(password: string): Promise<string> {
     if (!password) {
-      throw new BadRequestException('Password is required');
+      throw new BadRequestException({ errorCode: ErrorCode.INVALID_INPUT });
     }
 
     const saltRounds = parseInt(this.configService.get<string>('BCRYPT_SALT_ROUNDS', '10'), 10);
@@ -34,7 +34,7 @@ export class UsersService {
   async findById(id: number): Promise<User | null> {
     const user = await this.databaseService.findById(this.tableName, id);
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException({ errorCode: ErrorCode.RESOURCE_NOT_FOUND });
 
     return user;
   }
@@ -46,7 +46,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.findOne(createUserDto.email);
 
-    if (existingUser) throw new ConflictException('Email already exists');
+    if (existingUser) throw new ConflictException({ errorCode: ErrorCode.USER_ALREADY_EXISTS });
 
     const hashedPassword = await this.hashPassword(createUserDto.password);
 
@@ -59,11 +59,11 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     const user = await this.findById(id);
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException({ errorCode: ErrorCode.RESOURCE_NOT_FOUND });
 
     const updatedUser = await this.databaseService.update(this.tableName, id, updateUserDto as Partial<UserRow>);
 
-    if (!updatedUser) throw new BadRequestException('Could not update user');
+    if (!updatedUser) throw new BadRequestException({ errorCode: ErrorCode.OPERATION_FAILED });
 
     return {
       ...user,
@@ -75,11 +75,18 @@ export class UsersService {
     const user = await this.findById(id);
 
     if (changePasswordDto.currentPassword === changePasswordDto.newPassword)
-      throw new BadRequestException('New password must be different from current password');
+      throw new BadRequestException({
+        errorCode: ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT,
+        message: 'New password must be different from current password',
+      });
 
     const isPasswordValid = await this.verifyPassword(changePasswordDto.currentPassword, user!.password);
 
-    if (!isPasswordValid) throw new BadRequestException('Current password is incorrect');
+    if (!isPasswordValid)
+      throw new BadRequestException({
+        errorCode: ErrorCode.INVALID_PASSWORD,
+        message: 'Current password is incorrect',
+      });
 
     const hashedPassword = await this.hashPassword(changePasswordDto.newPassword);
 
@@ -87,7 +94,7 @@ export class UsersService {
       password: hashedPassword,
     } as Partial<UserRow>);
 
-    if (!updatedUser) throw new BadRequestException('Could not update user');
+    if (!updatedUser) throw new BadRequestException({ errorCode: ErrorCode.OPERATION_FAILED });
 
     return {
       ...user,

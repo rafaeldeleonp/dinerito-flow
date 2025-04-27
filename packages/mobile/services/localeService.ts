@@ -1,51 +1,90 @@
+import { DEFAULT_LANGUAGE, ErrorCode } from '@dinerito-flow/shared';
 import { Locale } from 'expo-localization';
-import { I18n, TranslateOptions } from 'i18n-js';
+import { init, changeLanguage, t, TOptions } from 'i18next';
 
-import { DEFAULT_LOCALE } from '@/constants/common';
 import { DEFAULT_USER_LOCALE } from '@/constants/locale';
-import en from '@/localization/translations/en';
-import es from '@/localization/translations/es';
+import enErrors from '@/localization/errors/en';
+import esErrors from '@/localization/errors/es';
 import { getUserLocale } from '@/utils/localization';
 
-const i18n = new I18n({
-  en,
-  es,
-});
+const enJson = require('@/localization/translations/en.json');
+const esJson = require('@/localization/translations/es.json');
 
-i18n.defaultLocale = DEFAULT_LOCALE;
-i18n.enableFallback = true;
+init({
+  lng: DEFAULT_LANGUAGE,
+  fallbackLng: DEFAULT_LANGUAGE,
+  resources: {
+    en: {
+      translation: enJson,
+      errors: enErrors,
+    },
+    es: {
+      translation: esJson,
+      errors: esErrors,
+    },
+  },
+  interpolation: {
+    escapeValue: false,
+  },
+  debug: __DEV__,
+  keySeparator: '.',
+  nsSeparator: ':',
+  returnObjects: true,
+  ns: ['translation', 'errors'],
+  defaultNS: 'translation',
+});
 
 class LocaleService {
   locale: Locale = DEFAULT_USER_LOCALE;
 
   constructor() {
     this.locale = getUserLocale();
-    i18n.locale = this.locale.languageCode || DEFAULT_LOCALE;
   }
 
-  seti18nLocale(languageCode: string) {
-    i18n.locale = languageCode;
+  setLocale(languageCode: string) {
+    this.locale = {
+      ...this.locale,
+      languageCode,
+      languageTag: `${languageCode}-${this.locale.languageRegionCode}`,
+    };
+
+    changeLanguage(languageCode);
   }
 
   getLocale() {
     return this.locale;
   }
 
-  translate(scope: string, options?: TranslateOptions) {
-    return i18n.t(scope, options);
+  translate(scope: string, options?: TOptions) {
+    return t(scope, options);
   }
 
-  numberToCurreny = (number: number) => {
-    return i18n.numberToCurrency(number, {
-      unit: this.locale.currencySymbol as string,
-      separator: this.locale.decimalSeparator as string,
-      delimiter: this.locale.digitGroupingSeparator as string,
+  translateError(errorCode: ErrorCode, options?: TOptions) {
+    return t(`errors:${errorCode}`, {
+      ...options,
+      // Fallback to the error code itself if translation is missing
+      defaultValue: errorCode,
     });
+  }
+
+  numberToCurrency = (number: number) => {
+    return new Intl.NumberFormat(this.locale.languageTag, {
+      style: 'currency',
+      currency: this.locale.currencyCode || 'USD',
+      currencyDisplay: 'symbol',
+    }).format(number);
   };
 
   localizeDate = (date: string) => {
-    return i18n.l('date.formats.short', date);
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.toLocaleDateString(this.locale.languageTag, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 }
 
-export default new LocaleService();
+const localeService = new LocaleService();
+
+export default localeService;

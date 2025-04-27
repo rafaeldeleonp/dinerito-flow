@@ -1,15 +1,19 @@
+import { ApiErrorResponse, ErrorCode } from '@dinerito-flow/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
 import * as z from 'zod';
 
 import Button from '@/components/Button';
+import FormError from '@/components/FormError';
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { EMAIL, PASSWORD } from '@/constants/common';
-import { useAuth } from '@/contexts/authentication';
+import { MIN_PASSWORD_LENGTH } from '@/constants/signup';
+import { useAuth } from '@/contexts/auth';
 import { useLocale } from '@/contexts/locale';
 
 export type LoginFormData = {
@@ -18,12 +22,20 @@ export type LoginFormData = {
 };
 
 export default function Login() {
-  const { logIn } = useAuth();
-  const { translate } = useLocale();
+  const { isLoading, logIn } = useAuth();
+  const { translate, translateError } = useLocale();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const schema = z.object({
-    [EMAIL]: z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail')),
-    [PASSWORD]: z.string().nonempty(translate('validation.requiredPassword')),
+    [EMAIL]: z
+      .string()
+      .email(translateError(ErrorCode.INVALID_EMAIL))
+      .nonempty(translateError(ErrorCode.REQUIRED_EMAIL)),
+    [PASSWORD]: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, translateError(ErrorCode.PASSWORD_TOO_SHORT, { min: MIN_PASSWORD_LENGTH }))
+      .nonempty(translateError(ErrorCode.REQUIRED_PASSWORD)),
   });
 
   const {
@@ -41,8 +53,13 @@ export default function Login() {
   });
 
   const handlePress = async (values: LoginFormData) => {
-    console.log('Login values:', values);
-    await logIn(values[EMAIL], values[PASSWORD]);
+    setError(null);
+
+    const response = await logIn(values[EMAIL], values[PASSWORD]);
+
+    if (response.success) router.replace('/(protected)/home');
+    else if (!response.success && (response as ApiErrorResponse).errorCode)
+      setError((response as ApiErrorResponse).errorCode?.message);
   };
 
   return (
@@ -69,7 +86,15 @@ export default function Login() {
         errorText={errors[PASSWORD]?.message}
       />
 
-      <Button text={translate('auth.login.button')} style={{ marginTop: 20 }} onPress={handleSubmit(handlePress)} />
+      <FormError message={error} />
+
+      <Button
+        text={translate('auth.login.button')}
+        style={{ marginTop: 20 }}
+        isLoading={isLoading}
+        disabled={isLoading}
+        onPress={handleSubmit(handlePress)}
+      />
 
       <Link style={[styles.link, { marginTop: 20 }]} href="/(auth)/reset-password">
         <ThemedText type={ThemedTextType.LINK}>{translate('auth.login.forgotPassword')}</ThemedText>

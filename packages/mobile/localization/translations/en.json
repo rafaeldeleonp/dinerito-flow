@@ -1,0 +1,63 @@
+{
+  "appSlogan": "Track your expenses effortlessly",
+  "appName": "Money",
+  "notFound": {
+    "title": "Oops!",
+    "message": "This screen doesn't exist.",
+    "button": "Go to home screen!"
+  },
+  "landing": {
+    "button": "Get Started"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "button": "Login",
+      "emailLabel": "Your email",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account? Sign up"
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "button": "Submit",
+      "confirmPasswordLabel": "Confirm password"
+    }
+  },
+  "signup": {
+    "button": "Sign up",
+    "backButton": "Back",
+    "submitButton": "Continue",
+    "enterEmail": {
+      "title": "Enter your email address",
+      "emailLabel": "Your email address",
+      "loading": "Sending..."
+    },
+    "verifyEmail": {
+      "title": "Verify your email address",
+      "loading": "Verifying...",
+      "codeLabel": "Enter code",
+      "noReceiveCode": "Didn't receive the code?",
+      "receiveCode": "We have sent a six digit code to",
+      "resendCodeSent": "Code resent successfully.",
+      "resendCodeButton": "Resend code"
+    },
+    "personalInfo": {
+      "title": "Personal information",
+      "firstNameLabel": "First name",
+      "lastNameLabel": "Last name"
+    },
+    "password": {
+      "title": "Create account",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "button": "Submit",
+      "loading": "Creating...",
+      "error": "Failed to create account. Please try again."
+    },
+    "accountCreated": {
+      "message": "Account created successfully.",
+      "button": "Login"
+    }
+  }
+}

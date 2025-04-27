@@ -1,4 +1,4 @@
-import { ChangePasswordDto, CreateUserDto, UpdateUserDto, User } from '@dinerito-flow/shared';
+import { ChangePasswordDto, CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
 import {
   BadRequestException,
   Body,
@@ -30,13 +30,13 @@ export class UsersController {
   @Get('me')
   async getMe(@Request() req: ExpressRequest): Promise<UserEntity | null> {
     if (!req.user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
     }
 
     const user = await this.userService.findOne((req.user as User).email);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException({ errorCode: ErrorCode.RESOURCE_NOT_FOUND });
     }
 
     return new UserEntity(user);
@@ -44,7 +44,7 @@ export class UsersController {
 
   @Get('exists')
   async exists(@Query('email') email: string): Promise<boolean> {
-    if (!email) throw new BadRequestException('Email must be provided');
+    if (!email) throw new BadRequestException({ errorCode: ErrorCode.INVALID_INPUT });
 
     const user = await this.userService.findOne(email);
 
@@ -64,7 +64,7 @@ export class UsersController {
   async update(@Request() req: ExpressRequest, @Body() updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const loggedUser = req.user;
 
-    if (!loggedUser) throw new UnauthorizedException();
+    if (!loggedUser) throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
 
     const updatedUser = await this.userService.update((loggedUser as User).id, updateUserDto);
 
@@ -80,7 +80,7 @@ export class UsersController {
   ): Promise<UserEntity> {
     const loggedUser = req.user;
 
-    if (!loggedUser) throw new UnauthorizedException();
+    if (!loggedUser) throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
 
     const updatedUser = await this.userService.changePassword((loggedUser as User).id, changePasswordDto);
 

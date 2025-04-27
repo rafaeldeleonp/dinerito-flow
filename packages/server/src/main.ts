@@ -2,7 +2,7 @@ import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './errors.interceptor';
+import { GlobalExceptionFilter } from './errors.interceptor';
 import { RequestLoggerInterceptor } from './request-logger.interceptor';
 import { TransformInterceptor } from './transform.interceptor';
 
@@ -16,7 +16,7 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalInterceptors(new RequestLoggerInterceptor());
   app.useGlobalInterceptors(new TransformInterceptor());
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

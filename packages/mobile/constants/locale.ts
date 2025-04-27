@@ -1,10 +1,9 @@
+import { DEFAULT_LANGUAGE } from '@dinerito-flow/shared';
 import { Locale } from 'expo-localization';
 
-import { DEFAULT_LOCALE } from './common';
-
 export const DEFAULT_USER_LOCALE: Locale = {
-  languageTag: `${DEFAULT_LOCALE}-US`,
-  languageCode: DEFAULT_LOCALE,
+  languageTag: `${DEFAULT_LANGUAGE}-US`,
+  languageCode: DEFAULT_LANGUAGE,
   languageRegionCode: 'US',
   langageCurrencySymbol: '$',
   langageCurrencyCode: 'USD',

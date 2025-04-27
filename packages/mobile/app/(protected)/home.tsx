@@ -2,7 +2,7 @@ import AppName from '@/components/AppName';
 import Button, { ButtonSize } from '@/components/Button';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreView';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
-import { useAuth } from '@/contexts/authentication';
+import { useAuth } from '@/contexts/auth';
 
 export default function HomeScreen() {
   const { logOut } = useAuth();

@@ -1,4 +1,6 @@
-import { ApiErrorResponse, ApiResponse } from '@dinerito-flow/shared';
+import { ApiErrorResponse, ApiResponse, ErrorCode, IErrorCode } from '@dinerito-flow/shared';
+
+import localeService from './localeService';
 
 const BASE_API_URL = 'http://192.168.86.97:3000';
 
@@ -44,17 +46,29 @@ class FetchService {
   ): Promise<ApiResponse<T> | ApiErrorResponse> {
     try {
       const response = await fetch(this.apiUrl(url), this.getFetchOptions(token, options));
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<T> | ApiErrorResponse = await response.json();
 
-      return response.ok ? (responseJson as ApiResponse<T>) : (responseJson as ApiErrorResponse);
+      if (!responseJson.success) {
+        const errorCodeKey = (responseJson as ApiErrorResponse).errorCode?.key || ErrorCode.UNKNOWN_ERROR;
+        (responseJson as ApiErrorResponse).errorCode = {
+          key: errorCodeKey,
+          message: localeService.translateError(errorCodeKey || ErrorCode.UNKNOWN_ERROR),
+        };
+      }
+
+      return responseJson;
     } catch {
       return {
         success: false,
         statusCode: 500,
         timestamp: new Date().toISOString(),
         data: null,
-        message: 'Network error',
-        error: 'Network error',
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
+        errorCode: {
+          key: ErrorCode.INTERNAL_SERVER_ERROR,
+          message: localeService.translateError(ErrorCode.INTERNAL_SERVER_ERROR),
+        },
       };
     }
   }

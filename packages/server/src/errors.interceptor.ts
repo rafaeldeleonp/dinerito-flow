@@ -1,43 +1,87 @@
-import { ApiErrorResponse, formatDateToDatetime } from '@dinerito-flow/shared';
-import { ExceptionResponse } from '@dinerito-flow/shared/src/interfaces/response.interface';
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ApiErrorResponse, ErrorCode, ExceptionResponse, formatDateToDatetime } from '@dinerito-flow/shared';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { Response } from 'express';
 
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
+
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const timestamp = formatDateToDatetime(new Date());
 
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    if (exception instanceof HttpException) {
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse() as ExceptionResponse;
+      const message = exceptionResponse.message || exception.message || 'Internal Server Error';
+      const errorCode: ErrorCode = exceptionResponse.errorCode
+        ? exceptionResponse.errorCode
+        : ErrorCode.INTERNAL_SERVER_ERROR;
+      const errorResponse: ApiErrorResponse = {
+        success: false,
+        statusCode: status,
+        error: Array.isArray(message) ? message.join(', ') : String(message),
+        message: this.getErrorMessage(status),
+        errorCode: {
+          key: errorCode,
+          message: '',
+        },
+        timestamp,
+      };
 
-    const exceptionResponse = exception.getResponse() as ExceptionResponse;
+      this.logger.error(`[${errorCode}] ${exception.message}`, exception.stack);
 
-    const message = exceptionResponse.message || exception.message || 'Internal server error';
+      return response.status(status).json(errorResponse);
+    }
 
-    const errorResponse: ApiErrorResponse = {
-      success: false,
-      statusCode: status,
-      message: this.getErrorMessage(status),
-      error: Array.isArray(message) ? message.join(', ') : String(message),
-      timestamp: formatDateToDatetime(new Date()),
-    };
+    this.logger.error(exception);
 
-    response.status(status).json(errorResponse);
+    return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      succes: false,
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      error: 'Internal Server Error',
+      message: 'Internal Server Error',
+      errorCode: {
+        key: ErrorCode.INTERNAL_SERVER_ERROR,
+        message: 'Internal Server Error',
+      },
+      timestamp,
+    });
   }
 
   private getErrorMessage(status: HttpStatus): string {
     switch (status) {
       case HttpStatus.UNAUTHORIZED:
-        return 'Authentication failed';
+        return 'Unauthorized';
       case HttpStatus.FORBIDDEN:
-        return 'Access denied';
+        return 'Forbidden';
       case HttpStatus.NOT_FOUND:
-        return 'Resource not found';
+        return 'Not Found';
       case HttpStatus.BAD_REQUEST:
-        return 'Invalid request';
+        return 'Bad Request';
+      case HttpStatus.INTERNAL_SERVER_ERROR:
+        return 'Internal Server Error';
+      case HttpStatus.SERVICE_UNAVAILABLE:
+        return 'Service Unavailable';
+      case HttpStatus.GATEWAY_TIMEOUT:
+        return 'Gateway Timeout';
+      case HttpStatus.CONFLICT:
+        return 'Conflict';
+      case HttpStatus.PRECONDITION_FAILED:
+        return 'Precondition Failed';
+      case HttpStatus.UNPROCESSABLE_ENTITY:
+        return 'Unprocessable Entity';
+      case HttpStatus.TOO_MANY_REQUESTS:
+        return 'Too Many Requests';
+      case HttpStatus.NOT_IMPLEMENTED:
+        return 'Not Implemented';
+      case HttpStatus.BAD_GATEWAY:
+        return 'Bad Gateway';
+      case HttpStatus.METHOD_NOT_ALLOWED:
+        return 'Method Not Allowed';
       default:
-        return 'Request failed';
+        return 'Internal Server Error';
     }
   }
 }

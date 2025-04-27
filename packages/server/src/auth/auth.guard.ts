@@ -1,4 +1,4 @@
-import { JwtPayloadDto } from '@dinerito-flow/shared/src/dto/auth/jwt-payload.dto';
+import { ErrorCode, JwtPayloadDto } from '@dinerito-flow/shared';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException();
+    if (!token) throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
 
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayloadDto>(token, {
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
 
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
     }
     return true;
   }

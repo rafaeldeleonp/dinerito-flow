@@ -1,3 +1,4 @@
+import { ErrorCode } from '@dinerito-flow/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -7,6 +8,7 @@ import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
+import { MIN_PASSWORD_LENGTH } from '@/constants/signup';
 import { useLocale } from '@/contexts/locale';
 
 export type ResetPasswordFormData = {
@@ -16,22 +18,31 @@ export type ResetPasswordFormData = {
 };
 
 export default function ResetPassword() {
-  const { translate } = useLocale();
+  const { translate, translateError } = useLocale();
 
   const schema = z
     .object({
-      [EMAIL]: z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail')),
-      [PASSWORD]: z.string().nonempty(translate('validation.requiredPassword')),
-      [CONFIRM_PASSWORD]: z.string().nonempty(translate('validation.requiredConfirmPassword')),
+      [EMAIL]: z
+        .string()
+        .email(translateError(ErrorCode.INVALID_EMAIL))
+        .nonempty(translateError(ErrorCode.REQUIRED_EMAIL)),
+      [PASSWORD]: z
+        .string()
+        .min(MIN_PASSWORD_LENGTH, translateError(ErrorCode.PASSWORD_TOO_SHORT))
+        .nonempty(translateError(ErrorCode.REQUIRED_PASSWORD)),
+      [CONFIRM_PASSWORD]: z
+        .string()
+        .min(MIN_PASSWORD_LENGTH, translateError(ErrorCode.PASSWORD_TOO_SHORT))
+        .nonempty(translateError(ErrorCode.REQUIRED_CONFIRM_PASSWORD)),
     })
     .refine((data) => data[PASSWORD] === data[CONFIRM_PASSWORD], {
-      message: translate('validation.passwordsDontMatch'),
+      message: translateError(ErrorCode.PASSWORDS_DONT_MATCH),
     });
 
   const { control } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(schema),
     mode: 'onSubmit',
-    reValidateMode: 'onBlur',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       [EMAIL]: '',
       [PASSWORD]: '',

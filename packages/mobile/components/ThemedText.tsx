@@ -9,6 +9,7 @@ export enum ThemedTextType {
   TITLE = 'title',
   SUBTITLE = 'subtitle',
   LINK = 'link',
+  SUCCESS = 'success',
   ERROR = 'error',
 }
 
@@ -21,6 +22,7 @@ export type ThemedTextProps = TextProps & {
     | ThemedTextType.TITLE
     | ThemedTextType.SUBTITLE
     | ThemedTextType.LINK
+    | ThemedTextType.SUCCESS
     | ThemedTextType.ERROR;
 };
 
@@ -37,6 +39,7 @@ export function ThemedText({ style, lightColor, darkColor, type = ThemedTextType
         type === ThemedTextType.TITLE ? styles.title : undefined,
         type === ThemedTextType.SUBTITLE ? styles.subtitle : undefined,
         type === ThemedTextType.LINK ? styles.link : undefined,
+        type === ThemedTextType.SUCCESS ? styles.success : undefined,
         type === ThemedTextType.ERROR ? styles.error : undefined,
         style,
       ]}
@@ -68,6 +71,12 @@ const styles = StyleSheet.create({
   [ThemedTextType.LINK]: {
     lineHeight: 30,
     fontSize: 16,
+    color: PRIMARY_COLOR,
+  },
+  [ThemedTextType.SUCCESS]: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 12,
     color: PRIMARY_COLOR,
   },
   [ThemedTextType.ERROR]: {

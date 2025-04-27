@@ -1,19 +1,21 @@
+import { DEFAULT_LANGUAGE, ErrorCode } from '@dinerito-flow/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TranslateOptions } from 'i18n-js';
+import { TOptions } from 'i18next';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY } from '@/constants/common';
+import { LOCALE_STORAGE_KEY } from '@/constants/common';
 import localeService from '@/services/localeService';
 import { LocaleContextType } from '@/types/locale';
 
 const locale = localeService.getLocale();
-const languageCode = locale.languageCode || DEFAULT_LOCALE;
+const languageCode = locale.languageCode || DEFAULT_LANGUAGE;
 
 const LocaleContext = createContext<LocaleContextType>({
   languageCode: languageCode,
   locale: locale,
-  translate: (scope) => scope,
-  numberToCurreny: (number) => number.toString(),
+  translate: (scope, options?: TOptions) => scope,
+  translateError: (errorCode: ErrorCode, options?: TOptions) => errorCode,
+  numberToCurrency: (number) => number.toString(),
   localizeDate: (date) => date,
 });
 
@@ -25,7 +27,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       try {
         const savedLocale = await AsyncStorage.getItem(LOCALE_STORAGE_KEY);
         if (savedLocale) {
-          localeService.seti18nLocale(savedLocale);
+          localeService.setLocale(savedLocale);
           setCurrentLanguageCodeState(savedLocale);
         }
       } catch (error) {
@@ -36,12 +38,16 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     loadSavedLocale();
   }, []);
 
-  const translate = (scope: string, options?: TranslateOptions) => {
+  const translate = (scope: string, options?: TOptions) => {
     return localeService.translate(scope, options);
   };
 
-  const numberToCurreny = (number: number) => {
-    return localeService.numberToCurreny(number);
+  const translateError = (errorCode: ErrorCode, options?: TOptions) => {
+    return localeService.translateError(errorCode, options);
+  };
+
+  const numberToCurrency = (number: number) => {
+    return localeService.numberToCurrency(number);
   };
 
   const localizeDate = (date: string) => {
@@ -50,7 +56,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LocaleContext.Provider
-      value={{ languageCode: currentLanguageCode, locale, translate, numberToCurreny, localizeDate }}
+      value={{ languageCode: currentLanguageCode, locale, translate, translateError, numberToCurrency, localizeDate }}
     >
       {children}
     </LocaleContext.Provider>

@@ -4,14 +4,3 @@ export interface VerificationCode {
   email: string;
   expiresAt: Date;
 }
-
-export interface VerifyCode {
-  verified: boolean;
-  expired: boolean;
-}
-
-export interface VerificationCodeResponse {
-  success: boolean;
-  error: string;
-  hasConflict?: boolean;
-}

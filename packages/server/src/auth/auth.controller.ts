@@ -1,4 +1,4 @@
-import { LoginResponse } from '@dinerito-flow/shared';
+import { ErrorCode, LoginResponse } from '@dinerito-flow/shared';
 import {
   ClassSerializerInterceptor,
   Controller,
@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 
-import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { UserEntity } from '../users/entities/user.entity';
@@ -25,7 +24,7 @@ export class AuthController {
   @Post('login')
   async login(@Request() req: ExpressRequest): Promise<LoginResponse> {
     if (!req.user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
     }
 
     const loginResponse = await this.authService.login(req.user as UserEntity);
@@ -37,11 +36,5 @@ export class AuthController {
         password: loginResponse.user.password || '',
       }),
     };
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Request() req: ExpressRequest) {
-    return req.user;
   }
 }

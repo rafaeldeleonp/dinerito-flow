@@ -1,15 +1,19 @@
+import { ApiErrorResponse } from '@dinerito-flow/shared';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import SignupWrapper from './wrapper';
 
+import FormError from '@/components/FormError';
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { EMAIL } from '@/constants/common';
 import { SignupFormData, useSignupForm } from '@/contexts/signup-form';
-import signupService from '@/services/signupService';
-import { FetchingState } from '@/types/signup';
+import verificationCodeService from '@/services/verificationCodeService';
 
 export default function SignupEnterEmail() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const {
     methods: {
       control,
@@ -18,29 +22,26 @@ export default function SignupEnterEmail() {
     translate,
     nextStep,
   } = useSignupForm();
-  const [enterEmailState, setEnterEmailState] = useState<FetchingState>({ isFetching: false, error: null });
 
-  const handlePress = async (values: SignupFormData) => {
-    setEnterEmailState({ isFetching: true, error: null });
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: async (values: SignupFormData) => {
+      setErrorMessage(null);
 
-    const response = await signupService.sendVerificationCode(values[EMAIL]);
+      const response = await verificationCodeService.sendVerificationCode(values[EMAIL]);
 
-    if (!response.success) {
-      setEnterEmailState({ isFetching: false, error: response.error });
-      return;
-    }
-
-    setEnterEmailState({ isFetching: false, error: null });
-
-    nextStep(values);
-  };
+      if (response.success) nextStep(values);
+      else if (!response.success && (response as ApiErrorResponse).errorCode) {
+        setErrorMessage((response as ApiErrorResponse).errorCode.message);
+      }
+    },
+  });
 
   return (
     <SignupWrapper
       buttonText={translate('signup.submitButton')}
       loadingText={translate('signup.enterEmail.loading')}
-      isLoading={enterEmailState.isFetching}
-      onPress={handlePress}
+      isLoading={isPending}
+      onPress={mutateAsync}
     >
       <ThemedText type={ThemedTextType.SUBTITLE}>{translate('signup.enterEmail.title')}</ThemedText>
 
@@ -54,7 +55,7 @@ export default function SignupEnterEmail() {
         errorText={errors[EMAIL]?.message}
       />
 
-      {enterEmailState.error && <ThemedText type={ThemedTextType.ERROR}>{enterEmailState.error}</ThemedText>}
+      <FormError message={errorMessage} />
     </SignupWrapper>
   );
 }

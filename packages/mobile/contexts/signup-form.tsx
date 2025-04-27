@@ -1,10 +1,11 @@
+import { ErrorCode } from '@dinerito-flow/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RelativePathString, usePathname, useRouter } from 'expo-router';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import * as z from 'zod';
 
-import { TranslateFn, useLocale } from './locale';
+import { useLocale } from './locale';
 
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
 import {
@@ -15,13 +16,14 @@ import {
   SIGNUP_STEPS,
   VERIFICATION_CODE_LENGTH,
 } from '@/constants/signup';
+import { TranslateErrorFn, TranslateFn } from '@/types/locale';
 
-const createStepValidator = (currentStep: number, translate: TranslateFn) => {
+const createStepValidator = (currentStep: number, translateError: TranslateErrorFn) => {
   return z
     .object({
       [EMAIL]:
         currentStep >= 0
-          ? z.string().email(translate('validation.invalidEmail')).nonempty(translate('validation.requiredEmail'))
+          ? z.string().email(translateError(ErrorCode.INVALID_EMAIL)).nonempty(translateError(ErrorCode.REQUIRED_EMAIL))
           : z.string().optional(),
       [CODE]:
         currentStep >= 1
@@ -29,21 +31,25 @@ const createStepValidator = (currentStep: number, translate: TranslateFn) => {
               .string()
               .min(
                 VERIFICATION_CODE_LENGTH,
-                translate('validation.minVerificationCodeLength', { min: VERIFICATION_CODE_LENGTH })
+                translateError(ErrorCode.MIN_VERIFICATION_CODE_LENGTH, { min: VERIFICATION_CODE_LENGTH })
               )
-              .nonempty(translate('validation.requiredVerificationCode'))
+              .nonempty(translateError(ErrorCode.REQUIRED_VERIFICATION_CODE))
           : z.string().optional(),
       [FIRST_NAME]:
-        currentStep >= 2 ? z.string().nonempty(translate('validation.requiredFirstName')) : z.string().optional(),
+        currentStep >= 2 ? z.string().nonempty(translateError(ErrorCode.REQUIRED_FIRST_NAME)) : z.string().optional(),
       [LAST_NAME]:
-        currentStep >= 2 ? z.string().nonempty(translate('validation.requiredLastName')) : z.string().optional(),
+        currentStep >= 2 ? z.string().nonempty(translateError(ErrorCode.REQUIRED_LAST_NAME)) : z.string().optional(),
       [PASSWORD]:
         currentStep >= 3
-          ? z.string().min(MIN_PASSWORD_LENGTH, translate('validation.minPasswordLength', { min: MIN_PASSWORD_LENGTH }))
+          ? z
+              .string()
+              .min(MIN_PASSWORD_LENGTH, translateError(ErrorCode.PASSWORD_TOO_SHORT, { min: MIN_PASSWORD_LENGTH }))
           : z.string().optional(),
       [CONFIRM_PASSWORD]:
         currentStep >= 3
-          ? z.string().min(MIN_PASSWORD_LENGTH, translate('validation.minPasswordLength', { min: MIN_PASSWORD_LENGTH }))
+          ? z
+              .string()
+              .min(MIN_PASSWORD_LENGTH, translateError(ErrorCode.PASSWORD_TOO_SHORT, { min: MIN_PASSWORD_LENGTH }))
           : z.string().optional(),
     })
     .refine(
@@ -53,7 +59,7 @@ const createStepValidator = (currentStep: number, translate: TranslateFn) => {
         return data[PASSWORD] === data[CONFIRM_PASSWORD];
       },
       {
-        message: translate('validation.passwordsDontMatch'),
+        message: translateError(ErrorCode.PASSWORDS_DONT_MATCH),
         path: [CONFIRM_PASSWORD], // This will show the error under confirm password field
       }
     );
@@ -72,6 +78,7 @@ interface SignupFormContextProps {
   methods: ReturnType<typeof useForm<SignupFormData>>;
   currentStep: number;
   translate: TranslateFn;
+  translateError: TranslateErrorFn;
   nextStep: (data: SignupFormData) => void;
   previousStep: () => void;
 }
@@ -80,12 +87,13 @@ const SignupFormContext = createContext<SignupFormContextProps>({
   methods: {} as ReturnType<typeof useForm<SignupFormData>>,
   currentStep: 0,
   translate: (scope: string) => scope,
+  translateError: (errorCode: ErrorCode) => errorCode,
   nextStep: (data: SignupFormData) => {},
   previousStep: () => {},
 });
 
 export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { translate } = useLocale();
+  const { translate, translateError } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const previousPathRef = useRef(pathname);
@@ -93,7 +101,7 @@ export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const methods = useForm<SignupFormData>({
     resolver: (data, context, options) => {
-      const stepValidator = createStepValidator(currentStep, translate);
+      const stepValidator = createStepValidator(currentStep, translateError);
       return zodResolver(stepValidator)(data, context, options);
     },
     mode: 'onSubmit',
@@ -145,7 +153,7 @@ export const SignupFormProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   return (
-    <SignupFormContext.Provider value={{ methods, currentStep, translate, nextStep, previousStep }}>
+    <SignupFormContext.Provider value={{ methods, currentStep, translate, translateError, nextStep, previousStep }}>
       <FormProvider {...methods}>{children}</FormProvider>
     </SignupFormContext.Provider>
   );

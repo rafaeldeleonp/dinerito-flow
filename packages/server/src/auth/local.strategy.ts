@@ -1,5 +1,5 @@
-import { User } from '@dinerito-flow/shared';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ErrorCode, User } from '@dinerito-flow/shared';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 
@@ -13,8 +13,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
   async validate(email: string, password: string): Promise<User> {
     const user = await this.authService.validateUser(email, password);
+
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new NotFoundException({ errorCode: ErrorCode.INVALID_CREDENTIALS });
     }
     return user;
   }

@@ -1,6 +1,6 @@
 // https://docs.expo.dev/guides/using-eslint/
 module.exports = {
-  extends: ['expo', 'plugin:import/recommended', 'plugin:import/typescript'],
+  extends: ['expo', 'plugin:import/recommended', 'plugin:import/typescript', 'plugin:@tanstack/query/recommended'],
   plugins: ['import'],
   ignorePatterns: ['/dist/*'],
   settings: {
@@ -18,26 +18,17 @@ module.exports = {
     },
   },
   rules: {
-    // Sort imports
     'import/order': [
       'error',
       {
-        groups: [
-          'builtin', // Built-in imports (come from NodeJS)
-          'external', // External imports
-          'internal', // Absolute imports
-          ['sibling', 'parent'], // Relative imports
-          'index', // Index imports
-          'unknown',
-        ],
+        groups: ['builtin', 'external', 'internal', ['sibling', 'parent'], 'index', 'unknown'],
         'newlines-between': 'always',
         alphabetize: {
-          order: 'asc', // Sort in ascending order
-          caseInsensitive: true, // Ignore case
+          order: 'asc',
+          caseInsensitive: true,
         },
       },
     ],
-    // No duplicate imports
     'import/no-duplicates': 'error',
   },
 };

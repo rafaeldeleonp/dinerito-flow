@@ -1,4 +1,4 @@
-import { ChangePasswordDto, CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
+import { CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
 import {
   BadRequestException,
   Body,
@@ -6,7 +6,6 @@ import {
   Controller,
   Get,
   NotFoundException,
-  Patch,
   Post,
   Put,
   Query,
@@ -67,22 +66,6 @@ export class UsersController {
     if (!loggedUser) throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
 
     const updatedUser = await this.userService.update((loggedUser as User).id, updateUserDto);
-
-    return new UserEntity(updatedUser!);
-  }
-
-  @UseInterceptors(ClassSerializerInterceptor)
-  @UseGuards(JwtAuthGuard)
-  @Patch('change-password')
-  async changePassword(
-    @Request() req: ExpressRequest,
-    @Body() changePasswordDto: ChangePasswordDto
-  ): Promise<UserEntity> {
-    const loggedUser = req.user;
-
-    if (!loggedUser) throw new UnauthorizedException({ errorCode: ErrorCode.UNAUTHORIZED_ACCESS });
-
-    const updatedUser = await this.userService.changePassword((loggedUser as User).id, changePasswordDto);
 
     return new UserEntity(updatedUser!);
   }

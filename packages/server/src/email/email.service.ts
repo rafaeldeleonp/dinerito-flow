@@ -1,12 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { DEFAULT_LANGUAGE } from '@dinerito-flow/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as SendGrid from '@sendgrid/mail';
+import * as Handlebars from 'handlebars';
+import { I18nContext } from 'nestjs-i18n';
 import * as nodemailer from 'nodemailer';
 
-const SHARED_TEMPLATES_KEYS = ['{{head}}', '{{logo}}', '{{footer}}'];
+import en from './i18n/en';
+import es from './i18n/es';
+import { EmailTemplates, I18nKeys } from './types';
+
+const SHARED_TEMPLATES_KEYS = ['footer', 'head', 'logo', 'team-message'];
 
 @Injectable()
 export class EmailService {
@@ -14,6 +21,7 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
   private templatesDir: string;
   private emailFrom: string;
+  private currentLang: string;
   private isDevolopment: boolean;
 
   constructor(private readonly configService: ConfigService) {
@@ -21,6 +29,7 @@ export class EmailService {
     this.templatesDir = path.join(__dirname, 'templates');
     this.isDevolopment = env === 'development' || env === 'test';
     this.emailFrom = this.configService.get<string>('EMAIL_FROM', 'info@dineritoflow.com');
+    this.currentLang = I18nContext.current()?.lang || DEFAULT_LANGUAGE;
 
     if (this.isDevolopment) {
       this.setupNodemailer();
@@ -72,25 +81,51 @@ export class EmailService {
     }
   }
 
-  private renderTemplate(templateName: string, data: Record<string, any>): string {
-    const template = this.getTemplate(templateName);
+  private registerPartials(): void {
+    SHARED_TEMPLATES_KEYS.forEach((key) => {
+      const partialPath = path.join(this.templatesDir, 'shared', this.currentLang, `${key}.html`);
 
-    if (!template) return '';
-
-    return template.replace(/{{(\w+)}}/g, (_, key) => {
-      if (SHARED_TEMPLATES_KEYS.includes(`{{${key}}}`)) {
-        const sharedTemplate = this.getTemplate(`/shared/${key}`);
-
-        if (sharedTemplate) return sharedTemplate;
-      }
-
-      return data[key] || '';
+      Handlebars.registerPartial(key, fs.readFileSync(partialPath, 'utf-8'));
     });
   }
 
-  private async send(mailOptions: nodemailer.SendMailOptions | SendGrid.MailDataRequired): Promise<boolean> {
+  private renderTemplate(templateName: EmailTemplates, data: Record<string, any>): string {
+    this.registerPartials();
+
+    const template = this.getTemplate(templateName);
+
+    if (!template) {
+      this.logger.error(`Failed to render ${templateName} template`);
+      return '';
+    }
+
+    return Handlebars.compile(template)(data);
+  }
+
+  private getTemplateI18nData(key: I18nKeys): Record<string, string> {
+    return {
+      lang: this.currentLang,
+      ...(this.currentLang === DEFAULT_LANGUAGE ? en[key] : es[key]),
+    };
+  }
+
+  async send(
+    to: string,
+    templateName: EmailTemplates,
+    data: Record<string, any>,
+    mailOptions?: nodemailer.SendMailOptions | SendGrid.MailDataRequired
+  ): Promise<boolean> {
+    const i18nKey = templateName.toUpperCase().replace(/-/g, '_') as I18nKeys;
+    const i18n = this.getTemplateI18nData(i18nKey);
+    const template = this.renderTemplate(templateName, { ...i18n, ...data });
+
+    if (!template) return false;
+
     const options = {
       ...mailOptions,
+      to,
+      subject: i18n.subject,
+      html: template,
       from: this.emailFrom,
     };
 
@@ -106,34 +141,5 @@ export class EmailService {
       this.logger.error(`Failed to send email`, error);
       return false;
     }
-  }
-
-  async sendWelcomeEmail(to: string, name: string): Promise<boolean> {
-    const template = this.renderTemplate('welcome', { name });
-
-    if (!template) {
-      this.logger.error(`Failed to render welcome template`);
-      return false;
-    }
-
-    return this.send({
-      to,
-      subject: 'Test email from DineritoFlow',
-      html: template,
-    });
-  }
-
-  async sendVerificationCodeEmail(to: string, code: string, expiration: number): Promise<boolean> {
-    const template = this.renderTemplate('verification-code', { code, expiration });
-
-    if (!template) {
-      this.logger.error(`Failed to render verification code template`);
-      return false;
-    }
-    return this.send({
-      to,
-      subject: 'Please confirm your email address',
-      html: template,
-    });
   }
 }

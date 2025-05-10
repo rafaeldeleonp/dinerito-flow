@@ -1,4 +1,4 @@
-import { ChangePasswordDto, CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
+import { CreateUserDto, ErrorCode, UpdateUserDto, User } from '@dinerito-flow/shared';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,7 @@ export class UsersService {
     private configService: ConfigService
   ) {}
 
-  private async hashPassword(password: string): Promise<string> {
+  async hashPassword(password: string): Promise<string> {
     if (!password) {
       throw new BadRequestException({ errorCode: ErrorCode.INVALID_INPUT });
     }
@@ -69,36 +69,5 @@ export class UsersService {
       ...user,
       ...updateUserDto,
     };
-  }
-
-  async changePassword(id: number, changePasswordDto: ChangePasswordDto): Promise<User | null> {
-    const user = await this.findById(id);
-
-    if (changePasswordDto.currentPassword === changePasswordDto.newPassword)
-      throw new BadRequestException({
-        errorCode: ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT,
-        message: 'New password must be different from current password',
-      });
-
-    const isPasswordValid = await this.verifyPassword(changePasswordDto.currentPassword, user!.password);
-
-    if (!isPasswordValid)
-      throw new BadRequestException({
-        errorCode: ErrorCode.INVALID_PASSWORD,
-        message: 'Current password is incorrect',
-      });
-
-    const hashedPassword = await this.hashPassword(changePasswordDto.newPassword);
-
-    const updatedUser = await this.databaseService.update(this.tableName, id, {
-      password: hashedPassword,
-    } as Partial<UserRow>);
-
-    if (!updatedUser) throw new BadRequestException({ errorCode: ErrorCode.OPERATION_FAILED });
-
-    return {
-      ...user,
-      password: hashedPassword,
-    } as User;
   }
 }

@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en">
-  {{head}}
+  {{> head }}
   <body style="margin: 0; padding: 0">
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff">
       <tr>
-        <td>{{logo}}</td>
+        <td>{{> logo }}</td>
       </tr>
       <tr>
         <td align="center" style="padding: 20px 0">
           <table border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse">
             <tr>
               <td style="padding: 20px 30px; font-family: Arial, sans-serif">
-                <h2>Welcome to DineritoFlow, {{name}}!</h2>
-                <p>Thanks,<br />The DineritoFlow Team</p>
+                <h2>{{ title }}, {{name}}!</h2>
+                {{> team-message}}
               </td>
             </tr>
           </table>

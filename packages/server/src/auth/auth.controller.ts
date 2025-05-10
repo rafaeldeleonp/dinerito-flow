@@ -1,8 +1,9 @@
-import { ErrorCode, LoginResponse } from '@dinerito-flow/shared';
+import { ChangePasswordDto, ErrorCode, LoginResponse } from '@dinerito-flow/shared';
 import {
+  BadRequestException,
+  Body,
   ClassSerializerInterceptor,
   Controller,
-  Get,
   Post,
   Request,
   UnauthorizedException,
@@ -36,5 +37,20 @@ export class AuthController {
         password: loginResponse.user.password || '',
       }),
     };
+  }
+
+  @Post('send-password-reset-email')
+  async sendPasswordResetEmail(@Body('email') email: string): Promise<boolean> {
+    if (!email) throw new BadRequestException({ errorCode: ErrorCode.INVALID_INPUT });
+
+    return this.authService.sendPasswordResetEmail(email);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('change-password')
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto): Promise<UserEntity> {
+    const updatedUser = await this.authService.changePassword(changePasswordDto);
+
+    return new UserEntity(updatedUser);
   }
 }

@@ -12,12 +12,12 @@ export * from './interfaces/verification-code.interface';
 
 // Auth
 export * from './dto/auth/jwt-payload.dto';
+export * from './dto/auth/change-password.dto';
 
 // Email
 export * from './dto/email/send-welcome-email.dto';
 
 // User
-export * from './dto/user/change-password.dto';
 export * from './dto/user/create-user.dto';
 export * from './dto/user/update-user.dto';
 

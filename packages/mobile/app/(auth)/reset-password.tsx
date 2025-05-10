@@ -1,15 +1,20 @@
-import { ErrorCode } from '@dinerito-flow/shared';
+import { ApiErrorResponse, ErrorCode } from '@dinerito-flow/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import Button from '@/components/Button';
+import FormError from '@/components/FormError';
 import ThemedInput from '@/components/ThemedInput';
 import { ThemedText, ThemedTextType } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { CONFIRM_PASSWORD, EMAIL, PASSWORD } from '@/constants/common';
 import { MIN_PASSWORD_LENGTH } from '@/constants/signup';
 import { useLocale } from '@/contexts/locale';
+import authService from '@/services/authService';
 
 export type ResetPasswordFormData = {
   [EMAIL]: string;
@@ -19,6 +24,8 @@ export type ResetPasswordFormData = {
 
 export default function ResetPassword() {
   const { translate, translateError } = useLocale();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const schema = z
     .object({
@@ -39,7 +46,7 @@ export default function ResetPassword() {
       message: translateError(ErrorCode.PASSWORDS_DONT_MATCH),
     });
 
-  const { control } = useForm<ResetPasswordFormData>({
+  const { control, handleSubmit } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(schema),
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -47,6 +54,23 @@ export default function ResetPassword() {
       [EMAIL]: '',
       [PASSWORD]: '',
       [CONFIRM_PASSWORD]: '',
+    },
+  });
+
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: async (data: ResetPasswordFormData) => {
+      setError(null);
+
+      const response = await authService.resetPassword({
+        email: data[EMAIL],
+        currentPassword: data[PASSWORD],
+        newPassword: data[CONFIRM_PASSWORD],
+      });
+
+      if (response.success) router.replace('/(auth)/login');
+      else if (!response.success && (response as ApiErrorResponse).errorCode) {
+        setError((response as ApiErrorResponse).errorCode.message);
+      }
     },
   });
 
@@ -67,7 +91,14 @@ export default function ResetPassword() {
       </ThemedText>
       <ThemedInput name={CONFIRM_PASSWORD} control={control} textContentType="password" secureTextEntry />
 
-      <Button text={translate('auth.resetPassword.button')} style={{ marginTop: 8 }} />
+      <FormError message={error} />
+
+      <Button
+        text={translate('auth.resetPassword.button')}
+        style={{ marginTop: 8 }}
+        isLoading={isPending}
+        onPress={handleSubmit((data) => mutateAsync(data))}
+      />
     </ThemedView>
   );
 }

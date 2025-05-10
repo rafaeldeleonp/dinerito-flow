@@ -11,6 +11,7 @@ import {
 import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RowDataPacket } from 'mysql2';
 
+import { EmailTemplates } from 'src/email/types';
 import { UsersService } from 'src/users/users.service';
 
 import { VERIFICATION_CODE_EXPIRATION_MINUTES } from './constants';
@@ -26,7 +27,7 @@ export class VerificationCodesService {
 
   constructor(
     private readonly databaseService: DatabaseService<VerificationCodeRow>,
-    private emailService: EmailService,
+    private readonly emailService: EmailService,
     private readonly usersService: UsersService
   ) {}
 
@@ -154,11 +155,10 @@ export class VerificationCodesService {
       });
     }
 
-    await this.emailService.sendVerificationCodeEmail(
-      sendVerificationCodeDto.email,
-      newVerificationCode.code,
-      VERIFICATION_CODE_EXPIRATION_MINUTES
-    );
+    await this.emailService.send(sendVerificationCodeDto.email, EmailTemplates.VERIFICATION_CODE, {
+      code: newVerificationCode.code,
+      expiration: VERIFICATION_CODE_EXPIRATION_MINUTES,
+    });
 
     return newVerificationCode;
   }

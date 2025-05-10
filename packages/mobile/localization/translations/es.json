@@ -6,13 +6,6 @@
     "message": "Esta pantalla no existe.",
     "button": "Ir a la pantalla de inicio!"
   },
-  "validation": {
-    "invalidEmail": "Dirección de correo electrónico no válida.",
-    "requiredEmail": "La dirección de correo electrónico es requerida.",
-    "requiredPassword": "La contraseña es requerida.",
-    "requiredConfirmPassword": "La confirmación de la contraseña es requerida.",
-    "passwordsDontMatch": "Las contraseñas no coinciden."
-  },
   "landing": {
     "button": "Iniciar"
   },

@@ -1,4 +1,4 @@
-import { ApiErrorResponse, ApiResponse, LoginResponse } from '@dinerito-flow/shared';
+import { ApiErrorResponse, ApiResponse, ChangePasswordDto, LoginResponse, User } from '@dinerito-flow/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
@@ -49,6 +49,10 @@ class AuthService {
     if (data) await this.saveToken(data?.access_token);
 
     return response;
+  }
+
+  async resetPassword(data: ChangePasswordDto): Promise<ApiResponse<User> | ApiErrorResponse> {
+    return fetchService.post<User>(`${this.baseUrl}change-password/`, data);
   }
 }
 
